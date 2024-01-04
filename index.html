@@ -212,10 +212,11 @@
         }
         // video
         var video = $("#intro-video");
-        $(".intro").remove();
         if (video.length) {
           video[0].playbackRate = 1.6;
-          video.on("ended", function () {});
+          video.on("ended", function () {
+            $(".intro").remove();
+          });
         }
         // Function to hide all gift divs
         function hideAllGifts() {
