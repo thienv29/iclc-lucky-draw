@@ -53,24 +53,24 @@
         </div>
       </div>
       <div class="footer d-flex justify-content-center align-items-start">
-        <div
-          class="d-flex justify-content-center align-items-center flex-column"
+        <div id="giainhat"
+          class="prize"
           onclick="bookGift(this)"
           data-tpe="nhat"
         >
           <img src="./assets/icon/Asset1.png" style="width: 320px" />
           <div class="amount-gift" id="amount-nhat" onclick="renderResultLatest('nhat')">20</div>
         </div>
-        <div
-          class="d-flex justify-content-center align-items-center flex-column"
+        <div id="giainhi"
+          class="prize"
           onclick="bookGift(this)"
           data-tpe="nhi"
         >
           <img src="./assets/icon/Asset2.png" style="width: 320px" />
           <div class="amount-gift" id="amount-nhi" onclick="renderResultLatest('nhi')">20</div>
         </div>
-        <div
-          class="d-flex justify-content-center align-items-center flex-column"
+        <div  id="giaiba"
+          class="prize"
           onclick="bookGift(this)"
           data-tpe="ba"
         >
@@ -80,8 +80,8 @@
           />
           <div class="amount-gift" id="amount-ba" onclick="renderResultLatest('ba')">20</div>
         </div>
-        <div
-          class="d-flex justify-content-center align-items-center flex-column"
+        <div id="giaikhuyenkhich"
+          class="prize"
           onclick="bookGift(this)"
           data-tpe="khuyenkhich"
         >
@@ -91,8 +91,8 @@
           />
           <div class="amount-gift" id="amount-khuyenkhich"  onclick="renderResultLatest('khuyenkhich')">20</div>
         </div>
-        <div
-          class="d-flex justify-content-center align-items-center flex-column"
+        <div id="giaimayman"
+          class="prize"
           onclick="bookGift(this)"
           data-tpe="mayman"
         >
@@ -158,6 +158,46 @@
             console.log('end intro');
           });
         }
+      });
+    </script>
+    <script>
+      $(document).ready(function() {
+        // Function to hide all gift divs
+        function hideAllGifts() {
+          var giftDivs = document.querySelectorAll('.prize');
+          console.log(giftDivs);
+          giftDivs.forEach(function(giftDiv) {
+            console.log(giftDiv);
+            giftDiv.style.display = 'none';
+          });
+        }
+        // Function to show the specified gift div
+        function showGift(giftType) {
+          hideAllGifts(); // Hide all gifts first
+          $('#' + giftType).show();
+        }
+
+        // Event listener for key press
+        $(document).keydown(function(event) {
+        console.log(event.key);
+          if (event.key == '1') {
+            showGift('giainhat');
+          }
+          if (event.key == '2') {
+            showGift('giainhi');
+          }
+          if (event.key == '3') {
+            showGift('giaiba');
+          }
+          if (event.key == '4') {
+            showGift('giaikhuyenkhich');
+          }
+          if (event.key == '5') {
+            showGift('giaimayman');
+          }
+        });
+
+        // ... (existing script continues)
       });
     </script>
   </body>

@@ -121,3 +121,9 @@
   border: #e5ba51 5px solid;
   border-radius: 12px;
 }
+.prize{
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
