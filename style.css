@@ -34,8 +34,13 @@
   justify-content: space-between;
   align-items: center;
 }
-.main{
-    margin-top: -200px;
+.header .title {
+  font-size: 80px;
+  margin-left: -240px;
+  color: aliceblue;
+}
+.main {
+  margin-top: -200px;
 }
 #playPauseBtn {
   cursor: pointer;
@@ -89,28 +94,28 @@
   right: 0;
   border-width: 1em 1em 0 0;
 }
-.footer{
-    position: absolute;
-    bottom: 0px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    scale: 0.7;
+.footer {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  transform: scale(1);
 }
 
-.footer >  div{
-    width: 300px;
-    outline: none;
-    background: transparent;
-    border: none;
-    outline: none;
-    height: 470px;
-    position: relative;
+.footer > div {
+  width: 300px;
+  outline: none;
+  background: transparent;
+  border: none;
+  outline: none;
+  height: 470px;
+  position: relative;
 }
-.footer >  div img{
-    width: 200px;
+.footer > div img {
+  width: 200px;
 }
-.amount-gift{
+.amount-gift {
   position: absolute;
   bottom: 0;
   color: white;
@@ -121,8 +126,8 @@
   border: #e5ba51 5px solid;
   border-radius: 12px;
 }
-.prize{
-  display:flex;
+.prize {
+  display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;

@@ -25,8 +25,11 @@
     </div>
     <div class="root">
       <div class="header">
-        <div class="logo">
+        <div class="logo ml-5">
           <img src="./assets/logo.png" id="playPauseBtn" alt="logo" />
+        </div>
+        <div class="title">
+          <img style="width: 1200px" src="./assets/tittle.png" alt="" />
         </div>
         <div class="media">
           <div class="music-player">
@@ -39,7 +42,7 @@
           <img
             id="ribbon-img"
             src="./assets/ribbon/ribbon5.png"
-            style="width: 1000px; margin-top: -69px px; margin-bottom: 68px"
+            style="width: 800px; height: 210px; margin-bottom: 100px"
             alt=""
           />
         </div>
@@ -53,34 +56,46 @@
         </div>
       </div>
       <div class="footer d-flex justify-content-center align-items-start">
-        <div id="giainhat"
+        <div
+          id="giainhat"
           class="prize"
           onclick="bookGift(this)"
           data-tpe="nhat"
         >
           <img src="./assets/icon/Asset1.png" style="width: 320px" />
-          <div class="amount-gift" id="amount-nhat" onclick="renderResultLatest('nhat')">20</div>
+          <div
+            class="amount-gift"
+            id="amount-nhat"
+            onclick="renderResultLatest('nhat')"
+          >
+            20
+          </div>
         </div>
-        <div id="giainhi"
-          class="prize"
-          onclick="bookGift(this)"
-          data-tpe="nhi"
-        >
+        <div id="giainhi" class="prize" onclick="bookGift(this)" data-tpe="nhi">
           <img src="./assets/icon/Asset2.png" style="width: 320px" />
-          <div class="amount-gift" id="amount-nhi" onclick="renderResultLatest('nhi')">20</div>
+          <div
+            class="amount-gift"
+            id="amount-nhi"
+            onclick="renderResultLatest('nhi')"
+          >
+            20
+          </div>
         </div>
-        <div  id="giaiba"
-          class="prize"
-          onclick="bookGift(this)"
-          data-tpe="ba"
-        >
+        <div id="giaiba" class="prize" onclick="bookGift(this)" data-tpe="ba">
           <img
             src="./assets/icon/Asset3.png"
             style="width: 280px; margin-top: 4px"
           />
-          <div class="amount-gift" id="amount-ba" onclick="renderResultLatest('ba')">20</div>
+          <div
+            class="amount-gift"
+            id="amount-ba"
+            onclick="renderResultLatest('ba')"
+          >
+            20
+          </div>
         </div>
-        <div id="giaikhuyenkhich"
+        <div
+          id="giaikhuyenkhich"
           class="prize"
           onclick="bookGift(this)"
           data-tpe="khuyenkhich"
@@ -89,9 +104,16 @@
             src="./assets/icon/Asset4.png"
             style="width: 221px; margin-top: 30px"
           />
-          <div class="amount-gift" id="amount-khuyenkhich"  onclick="renderResultLatest('khuyenkhich')">20</div>
+          <div
+            class="amount-gift"
+            id="amount-khuyenkhich"
+            onclick="renderResultLatest('khuyenkhich')"
+          >
+            20
+          </div>
         </div>
-        <div id="giaimayman"
+        <div
+          id="giaimayman"
           class="prize"
           onclick="bookGift(this)"
           data-tpe="mayman"
@@ -100,23 +122,39 @@
             src="./assets/icon/Asset5.png"
             style="width: 210px; margin-top: 30px"
           />
-          <div class="amount-gift" id="amount-mayman" onclick="renderResultLatest('mayman')">20</div>
+          <div
+            class="amount-gift"
+            id="amount-mayman"
+            onclick="renderResultLatest('mayman')"
+          >
+            20
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="modal fade " id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="exampleModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-          <div class="modal-header bg-danger text-white" >
+          <div class="modal-header bg-danger text-white">
             <h5 class="modal-title" id="exampleModalLabel">Result</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body" style="background-color: #dea63f;">
-            
-          </div>
+          <div class="modal-body" style="background-color: #dea63f"></div>
         </div>
       </div>
     </div>
@@ -147,57 +185,97 @@
       crossorigin="anonymous"
     ></script>
     <script src="./render.js"></script>
-    <script src="./main.js"></script>
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        var video = document.getElementById("intro-video");
-        if (video) {
-          video.playbackRate = 1.6;
-          video.addEventListener("ended", function () {
-            document.querySelector(".intro").remove();
-            console.log('end intro');
+      $(document).ready(function () {
+        function exportResultsToCSV() {
+          const allResults = [
+            { name: "May mắn", data: maymanResult },
+            { name: "Khuyến khích", data: khuyenkhichResult },
+            { name: "Ba", data: baResult },
+            { name: "Nhì", data: nhiResult },
+            { name: "Nhất", data: nhatResult },
+          ];
+
+          let csvContent = "";
+
+          allResults.forEach((result) => {
+            const rows = result.data.map((row) => row.join(",")).join("\n");
+            csvContent += `${result.name}\n${rows}\n\n`;
           });
+
+          // Create a blob with the CSV content and create a download link
+          const blob = new Blob([csvContent], { type: "text/csv" });
+          const link = document.createElement("a");
+          link.href = window.URL.createObjectURL(blob);
+          link.download = "results.csv";
+          link.click();
         }
-      });
-    </script>
-    <script>
-      $(document).ready(function() {
+        // video
+        var video = $("#intro-video");
+        $(".intro").remove();
+        if (video.length) {
+          video[0].playbackRate = 1.6;
+          video.on("ended", function () {});
+        }
         // Function to hide all gift divs
         function hideAllGifts() {
-          var giftDivs = document.querySelectorAll('.prize');
-          console.log(giftDivs);
-          giftDivs.forEach(function(giftDiv) {
-            console.log(giftDiv);
-            giftDiv.style.display = 'none';
-          });
+          $(".prize").hide();
+        }
+        function showAllGifts() {
+          $(".prize").show();
         }
         // Function to show the specified gift div
         function showGift(giftType) {
           hideAllGifts(); // Hide all gifts first
-          $('#' + giftType).show();
+          $("#" + giftType).show();
+        }
+        function emptyResult() {
+          const paletteResult = $("#palette-result");
+          paletteResult.empty();
         }
 
         // Event listener for key press
-        $(document).keydown(function(event) {
-        console.log(event.key);
-          if (event.key == '1') {
-            showGift('giainhat');
+        $(document).keydown(function (event) {
+          if (event.key == "0") {
+            const audio = $("#myAudio")[0];
+            if (audio.paused) {
+              audio.play();
+            } else {
+              audio.pause();
+            }
           }
-          if (event.key == '2') {
-            showGift('giainhi');
+          if (event.key == "1") {
+            showGift("giainhat");
+            emptyResult();
+            setRibbon(event.key);
           }
-          if (event.key == '3') {
-            showGift('giaiba');
+          if (event.key == "2") {
+            showGift("giainhi");
+            emptyResult();
+            setRibbon(event.key);
           }
-          if (event.key == '4') {
-            showGift('giaikhuyenkhich');
+          if (event.key == "3") {
+            showGift("giaiba");
+            emptyResult();
+            setRibbon(event.key);
           }
-          if (event.key == '5') {
-            showGift('giaimayman');
+          if (event.key == "4") {
+            showGift("giaikhuyenkhich");
+            emptyResult();
+            setRibbon(event.key);
+          }
+          if (event.key == "5") {
+            showGift("giaimayman");
+            emptyResult();
+            setRibbon(event.key);
+          }
+          if (event.key == "6") {
+            showAllGifts();
+          }
+          if (event.key == "7") {
+            exportResultsToCSV();
           }
         });
-
-        // ... (existing script continues)
       });
     </script>
   </body>

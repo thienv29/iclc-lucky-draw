@@ -40,7 +40,6 @@ function createArrayByNumber(soLuong) {
 function reset() {
   totalMember = 110;
   member = createArrayByNumber(totalMember);
-  console.log(member);
   config.mayman = totalMember - 16;
   $(`#amount-nhat`).text(config.nhat);
   $(`#amount-nhi`).text(config.nhi);
@@ -167,17 +166,9 @@ function addToResult(result, typeGift) {
         maymanResult.push(result);
         break;
     }
-    console.log({
-      nhatResult,
-      nhiResult,
-      baResult,
-      khuyenkhichResult,
-      maymanResult,
-    });
   }
 }
 function renderResultLatest(typeGift) {
-  console.log("thien");
   const modalBody = $(".modal-body");
   modalBody.empty();
   let result = [];
