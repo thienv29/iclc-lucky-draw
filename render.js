@@ -38,7 +38,7 @@ function createArrayByNumber(soLuong) {
 }
 
 function reset() {
-  totalMember = 110;
+  totalMember = 150;
   member = createArrayByNumber(totalMember);
   config.mayman = totalMember - 16;
   $(`#amount-nhat`).text(config.nhat);
