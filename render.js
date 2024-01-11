@@ -18,14 +18,32 @@ var baResult = [];
 
 reset();
 function appearResult(typeGift) {
+  let timeOut = 1000;
+  switch (typeGift) {
+    case "nhat":
+      timeOut = 5000;
+      break;
+    case "nhi":
+      timeOut = 4000;
+      break;
+    case "ba":
+      timeOut = 4000;
+      break;
+    case "khuyenkhich":
+      timeOut = 3000;
+      break;
+    case "mayman":
+      timeOut = 2000;
+      break;
+  }
   $(".palette .color").each(function (i, e) {
     setTimeout(function () {
       $(e).addClass("in");
       $(e).addClass("bg-frame" + getSTT(typeGift));
       spanValue = e.querySelector("span");
       const dataValue = parseInt($(e).attr("data-value"));
-      animateValue(spanValue, dataValue - 30, dataValue, 1000);
-    }, i * 600);
+      animateValue(spanValue, dataValue + 850, dataValue, timeOut);//3 5 7 10
+    }, i * timeOut);
   });
 }
 
