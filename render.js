@@ -42,7 +42,7 @@ function appearResult(typeGift) {
       $(e).addClass("bg-frame" + getSTT(typeGift));
       spanValue = e.querySelector("span");
       const dataValue = parseInt($(e).attr("data-value"));
-      animateValue(spanValue, dataValue + 850, dataValue, timeOut);//3 5 7 10
+      animateValue(spanValue, dataValue + 200, dataValue, timeOut);//3 5 7 10
     }, i * timeOut);
   });
 }
@@ -81,16 +81,22 @@ function getRandomAndRemove(numberOfRandoms) {
 }
 
 function animateValue(obj, start, end, duration) {
-  let startTimestamp = null;
-  const step = (timestamp) => {
-    if (!startTimestamp) startTimestamp = timestamp;
-    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-    obj.innerHTML = Math.floor(progress * (end - start) + start);
-    if (progress < 1) {
-      window.requestAnimationFrame(step);
+  const startTime = Date.now();
+  
+  const updateValue = () => {
+    const currentTime = Date.now();
+    const elapsedTime = currentTime - startTime;
+    
+    if (elapsedTime >= duration) {
+      obj.innerHTML = end;
+    } else {
+      const randomValue = Math.floor(Math.random() * (end - start + 1) + start);
+      obj.innerHTML = randomValue;
+      requestAnimationFrame(updateValue);
     }
   };
-  window.requestAnimationFrame(step);
+
+  requestAnimationFrame(updateValue);
 }
 
 function renderResult(numberOfRandoms, typeGift) {
