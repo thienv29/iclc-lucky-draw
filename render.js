@@ -42,7 +42,7 @@ function appearResult(typeGift) {
       $(e).addClass("bg-frame" + getSTT(typeGift));
       spanValue = e.querySelector("span");
       const dataValue = parseInt($(e).attr("data-value"));
-      animateValue(spanValue, dataValue + 200, dataValue, timeOut);//3 5 7 10
+      animateValue(spanValue,dataValue + 100, dataValue, timeOut);//3 5 7 10
     }, i * timeOut);
   });
 }
