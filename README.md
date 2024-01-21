@@ -1,69 +1,54 @@
 # Lucky Draw App
 
-## Overview
+This is a web application for conducting lucky draws with various prizes. Users can trigger the lucky draw for different prize categories, and the results are displayed in an animated manner. The project includes HTML, CSS, and JavaScript files for the frontend, as well as a Node.js server for potential backend functionalities.
 
-This web-based Lucky Draw application is designed to facilitate random draws with various prize categories. Users can initiate draws, view visually appealing results, and export them to a CSV file. The application features an introductory video, background music, and supports different prize categories, such as "Nhất," "Nhì," "Ba," "Khuyến khích," and "May mắn."
+## Project Structure
 
-## Features
+### HTML Files
 
-1. **Prize Categories**
-   - "Nhất," "Nhì," "Ba," "Khuyến khích," and "May mắn."
+- `index.html`: The main HTML file that defines the structure of the lucky draw app. It includes references to CSS and JavaScript files.
+  
+### CSS Files
 
-2. **Random Selection**
-   - Fair and unpredictable winner selection for each category.
+- `style.css`: Stylesheet for the main layout of the lucky draw app.
+- `result-random.css`: Stylesheet for the animated result display.
 
-3. **Visual Display**
-   - Animated draw results with ribbons and color palettes.
+### JavaScript Files
 
-4. **Result History**
-   - View the latest draw results for each category in a modal.
+- `render.js`: Contains the logic for rendering random results, handling the bookGift function, and managing the animation of results.
+- `main.js`: Implements additional features, such as exporting results to CSV, handling key events for controlling audio and gift display.
 
-5. **Export Results**
-   - Option to export draw results to a CSV file.
+### Assets
 
-6. **Background Video and Music**
-   - Introductory video with adjustable playback rate.
-   - Background music toggle.
+- `media/`: Contains video and audio files used in the app.
+- `icon/`: Icons for different prize categories.
+- `ribbon/`: Images of ribbons corresponding to different prize categories.
+- `lib/`: External libraries like Bootstrap and jQuery.
 
-## How to Use
+## Usage
 
-1. **Initiate Draw**
-   - Press corresponding number keys (1-5) for prize categories.
+1. Open `index.html` in a web browser.
+2. Use the following key shortcuts for different functionalities:
+   - Press `0` to toggle the background music.
+   - Press `1` to trigger the lucky draw for the top prize.
+   - Press `2` for the second prize.
+   - Press `3` for the third prize.
+   - Press `4` for encouragement prize.
+   - Press `5` for lucky draw prize.
+   - Press `6` to show all gift categories.
+   - Press `7` to export the results to a CSV file.
+   - Press `8` to play/pause the introduction video.
+   - Press `9` to toggle the game play music.
 
-2. **Visual Feedback**
-   - Animated feedback for draw results.
+## Additional Notes
 
-3. **Result History**
-   - Click on prize amounts to view the latest results in a modal.
-
-4. **Export Results**
-   - Press the "7" key to export results to a CSV file.
-
-5. **Background Video and Music**
-   - Press "0" to toggle background music.
-
-## Keyboard Shortcuts
-
-- **1-5:** Initiate draw for prize categories.
-- **6:** Show all prize categories.
-- **7:** Export draw results to a CSV file.
-- **0:** Toggle background music.
-
-## Additional Information
-
-- **Dependencies:**
-  - jQuery
-  - Bootstrap
-  - Animate.css
-
-- **File Structure:**
-  - `render.js`: JavaScript logic for the Lucky Draw application.
-  - `style.css`: Stylesheet for the application.
-  - `result-random.css`: Stylesheet for result display.
-  - `assets/`: Directory containing images, logos, and media.
+- The project uses jQuery and Bootstrap for styling and functionality.
+- The server-side functionalities are not implemented in the provided code and can be added if needed.
 
 ## Credits
 
-- **Developed by:** [Vũ Quý Thiện]
+This project was created by Vũ Quý Thiện (Thiendev) and is open source. Feel free to contribute or modify it according to your requirements.
 
-Feel free to customize and extend this application to meet your specific requirements.
+## License
+
+This project is licensed under the [MIT License](LICENSE).
