@@ -26,7 +26,6 @@ $(document).ready(function () {
     // video
     var video = $("#intro-video");
     if (video.length) {
-      video[0].playbackRate = 1.6;
       video.on("ended", function () {
         $(".intro").remove();
       });
