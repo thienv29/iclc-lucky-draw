@@ -1,6 +1,6 @@
-# Lucky Draw App
+# Lucky Draw App For ICLC Company
 
-This is a web application for conducting lucky draws with various prizes. Users can trigger the lucky draw for different prize categories, and the results are displayed in an animated manner. The project includes HTML, CSS, and JavaScript files for the frontend, as well as a Node.js server for potential backend functionalities.
+This is a web application for conducting lucky draws with various prizes. Users can trigger the lucky draw for different prize categories, and the results are displayed in an animated manner. The project includes HTML, CSS, and JavaScript files for the application
 
 ## Project Structure
 
