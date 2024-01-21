@@ -34,6 +34,7 @@
         <div class="media">
           <div class="music-player">
             <audio id="myAudio" src="./assets/media/music.mp3"></audio>
+            <audio id="myAudio2" src="./assets/media/music-game-play.mp3"></audio>
           </div>
         </div>
       </div>
@@ -166,7 +167,7 @@
       loop
       muted
     >
-      <source src="./assets/media/04.mp4" type="video/mp4" />
+      <source src="./assets/media/background.mp4" type="video/mp4" />
       <!--Thêm các định dạng video khác nếu cần-->
     </video>
     <script
@@ -243,6 +244,21 @@
               audio.play();
             } else {
               audio.pause();
+            }
+          }
+          if (event.key == "9") {
+            const audio = $("#myAudio2")[0];
+            if (audio.paused) {
+              audio.play();
+            } else {
+              audio.pause();
+            }
+          }
+          if (event.key == "8") {
+            if (video[0].paused) {
+              video[0].play();
+            } else {
+              video[0].pause();
             }
           }
           if (event.key == "1") {

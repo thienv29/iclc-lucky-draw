@@ -21,7 +21,7 @@ function appearResult(typeGift) {
   let timeOut = 1000;
   switch (typeGift) {
     case "nhat":
-      timeOut = 5000;
+      timeOut = 8000;
       break;
     case "nhi":
       timeOut = 4000;
@@ -56,7 +56,7 @@ function createArrayByNumber(soLuong) {
 }
 
 function reset() {
-  totalMember = 150;
+  totalMember = 145;
   member = createArrayByNumber(totalMember);
   config.mayman = totalMember - 16;
   $(`#amount-nhat`).text(config.nhat);
