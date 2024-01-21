@@ -1,7 +1,8 @@
 # Lucky Draw App For ICLC Company
 
 This is a web application for conducting lucky draws with various prizes. Users can trigger the lucky draw for different prize categories, and the results are displayed in an animated manner. The project includes HTML, CSS, and JavaScript files for the application
-
+## Demo
+For a live demo, visit  *[Lucky Draw App Demo](https://iclc-lucky-draw.vercel.app/)*.
 ## Project Structure
 
 ### HTML Files
@@ -47,4 +48,4 @@ This is a web application for conducting lucky draws with various prizes. Users 
 
 ## Credits
 
-This project was created by Vũ Quý Thiện (Thiendev) and is open source. Feel free to contribute or modify it according to your requirements.
+This project was created by Vũ Quý Thiện (Thiendev) *[Thiendev](https://github.com/thienv29)* and is open source. Feel free to contribute or modify it according to your requirements.
