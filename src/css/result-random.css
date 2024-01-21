@@ -172,7 +172,7 @@
 }
 
 .bg-framet {
-  background-image: url("./assets/frame/t.jpg");
+  background-image: url("../../assets/frame/t.jpg");
   background-size: cover;
 }
 
@@ -180,7 +180,7 @@
   font-size: 70px;
 }
 .bg-frame1 {
-  background-image: url(./assets/frame/Prize1.png);
+  background-image: url("../../assets/frame/Prize1.png");
   background-size: cover;
   background-position-x: 1px;
   width: 503px;
@@ -192,7 +192,7 @@
   font-size: 78px;
 }
 .bg-frame2 {
-  background-image: url("./assets/frame/Prize2.png");
+  background-image: url("../../assets/frame/Prize2.png");
   background-size: cover;
   width: 400px;
   height: 324px;
@@ -203,7 +203,7 @@
   font-size: 76px;
 }
 .bg-frame3 {
-  background-image: url("./assets/frame/Prize3.png");
+  background-image: url("../../assets/frame/Prize3.png");
   background-size: cover;
   width: 300px;
   height: 300px;
@@ -215,7 +215,7 @@
   margin-top: 32px;
 }
 .bg-frame4 {
-  background-image: url(./assets/frame/Prize4.png);
+  background-image: url("../../assets/frame/Prize4.png");
   background-size: cover;
   width: 250px;
   height: 250px;
@@ -226,7 +226,7 @@
   margin-top: 20px;
 }
 .bg-frame5 {
-  background-image: url("./assets/frame/Prize5.png");
+  background-image: url("../../assets/frame/Prize5.png");
   background-size: cover;
   height: 180px;
   margin-top: 16px;
