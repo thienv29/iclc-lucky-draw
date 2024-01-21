@@ -48,7 +48,3 @@ This is a web application for conducting lucky draws with various prizes. Users 
 ## Credits
 
 This project was created by Vũ Quý Thiện (Thiendev) and is open source. Feel free to contribute or modify it according to your requirements.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
