@@ -7,7 +7,7 @@ const config = {
   nhat: 1,
   nhi: 2,
   ba: 3,
-  khuyenkhich: 10,
+  khuyenkhich: 5,
   mayman: totalMember - 16,
 };
 var maymanResult = [];

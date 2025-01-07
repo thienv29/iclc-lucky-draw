@@ -30,6 +30,7 @@ $(document).ready(function () {
         $(".intro").remove();
       });
     }
+    $(".intro").remove();
     // Function to hide all gift divs
     function hideAllGifts() {
       $(".prize").hide();
@@ -37,7 +38,7 @@ $(document).ready(function () {
     function showAllGifts() {
       $(".prize").show();
     }
-    // Function to show the specified gift div
+    // Function to show the specified gift div9
     function showGift(giftType) {
       hideAllGifts(); // Hide all gifts first
       $("#" + giftType).show();
