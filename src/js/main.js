@@ -30,7 +30,6 @@ $(document).ready(function () {
         $(".intro").remove();
       });
     }
-    $(".intro").remove();
     // Function to hide all gift divs
     function hideAllGifts() {
       $(".prize").hide();
