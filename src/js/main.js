@@ -27,7 +27,9 @@ $(document).ready(function () {
     var video = $("#intro-video");
     if (video.length) {
       video.on("ended", function () {
-        $(".intro").remove();
+        jQuery(".intro").fadeOut(1000, function () {
+          jQuery(this).remove(); // Xóa phần tử sau khi hiệu ứng fadeOut hoàn thành
+        });
       });
     }
     // Function to hide all gift divs
