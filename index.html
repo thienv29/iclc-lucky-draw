@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="./src/css/result-random.css" />
     <link rel="stylesheet" href="./assets/lib/css/bootstrap.min.css" />
     <link rel="stylesheet" href="./assets/lib/css/animate.min.css" />
+    <script src="./assets/lib/js/socket.io.min.js"></script>
   </head>
   <body>
     <div class="intro">
@@ -167,5 +168,15 @@
     <script src="./assets/lib/js/bootstrap.min.js"></script>
     <script src="./src/js/render.js"></script>
     <script src="./src/js/main.js"></script>
+    <script>
+       const socket = io('http://103.1.236.212:3111'); 
+       socket.on('broadcast', (data) => {
+        const visiblePrizeElements = [...document.querySelectorAll('.prize')].filter(element => getComputedStyle(element).display !== 'none');
+        visiblePrizeElements.forEach(element => element.click());
+        console.log('Broadcast received:', data);
+      });
+    </script>
+
+    
   </body>
 </html>
