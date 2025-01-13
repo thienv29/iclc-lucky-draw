@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quay Số</title>
+    <script src="/socket.io.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+        }
+        button {
+            border: none;
+            background-color: transparent;
+            padding: 0;
+            cursor: pointer;
+        }
+        button img {
+            width: 80vw; /* Kích thước ảnh */
+            height: auto;
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+        button img:hover {
+            transform: scale(1.1); /* Phóng to khi hover */
+            filter: brightness(1.2); /* Tăng độ sáng khi hover */
+        }
+        button img:active {
+            transform: scale(0.95) rotate(10deg); /* Nhỏ lại và xoay khi click */
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .shaking img {
+            animation: shake 0.5s;
+        }
+        .pulsing img {
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <button id="sendButton">
+        <img src="/ICLClogo.png" alt="Logo">
+    </button>
+
+    <style>
+        body {
+          position: relative;
+          overflow-x: hidden; /* Ngăn cuộn ngang */
+        }
+        .snowflake {
+          position: fixed;
+          top: -50px;
+          user-select: none;
+          z-index: 9999;
+          pointer-events: none;
+          animation-name: fall;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+        }
+        
+        @keyframes fall {
+          0% {
+            transform: translateY(0);
+            opacity: 1;
+          }
+          50% {
+            transform: translateY(0);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(100vh);
+            opacity: 0;
+          }
+        }
+        </style>
+        <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          const tetEmojis = ["🌸", "🧧", "🎉", "🏵️"]; // Các emoji Tết
+          let snowflakeInterval = 100; // Thời gian ban đầu giữa các lần tạo (ms)
+          let snowflakeCount = 0; // Đếm số lần tạo tuyết
+        
+          const createSnowflake = () => {
+            const snowflake = document.createElement("div");
+            snowflake.className = "snowflake";
+            snowflake.textContent = tetEmojis[Math.floor(Math.random() * tetEmojis.length)];
+            snowflake.style.left = Math.random() * 100 + "vw"; // Vị trí ngang ngẫu nhiên
+            snowflake.style.animationDuration = Math.random() * 3 + 10 + "s"; // Tốc độ rơi (3-6 giây)
+            snowflake.style.fontSize = Math.random() * 15 + 25 + "px"; // Kích thước (25-40px)
+            document.body.appendChild(snowflake);
+        
+            // Xóa emoji sau khi hoàn thành
+            snowflake.addEventListener("animationend", () => {
+              snowflake.remove();
+            });
+          };
+        
+          const startSnowfall = () => {
+            const intervalId = setInterval(() => {
+              createSnowflake();
+              snowflakeCount++;
+        
+              // Giảm tốc độ tạo dần theo thời gian
+              if (snowflakeCount % 20 === 0 && snowflakeInterval < 2000) {
+                snowflakeInterval += 200; // Tăng thời gian giữa các lần tạo
+                clearInterval(intervalId); // Dừng interval cũ
+                startSnowfall(); // Bắt đầu với interval mới
+              }
+        
+              // Dừng hiệu ứng sau một khoảng thời gian
+            //   if (snowflakeCount > 15) {
+            //     clearInterval(intervalId);
+            //   }
+            }, snowflakeInterval);
+          };
+        
+          startSnowfall(); // Bắt đầu hiệu ứng
+        });
+        </script>
+
+    <script>
+        const socket = io();
+        const sendButton = document.getElementById('sendButton');
+
+        sendButton.addEventListener('click', () => {
+            const message = { action: "quay so" };
+
+            // Thêm hiệu ứng rung và xung nhịp vào ảnh
+            sendButton.classList.add('shaking');
+            sendButton.classList.add('pulsing');
+
+            // Gửi thông điệp đến server
+            socket.send(JSON.stringify(message));
+
+            // Xóa hiệu ứng rung sau 0.5 giây
+            setTimeout(() => {
+                sendButton.classList.remove('shaking');
+            }, 500);
+
+            // Tạm thời disable nút (nếu cần)
+            sendButton.disabled = true;
+
+            setTimeout(() => {
+                sendButton.disabled = false;
+            }, 3000);
+        });
+
+        socket.on('message', (data) => {
+            console.log('Server response:', data);
+            sendButton.classList.remove('pulsing');
+        });
+    </script>
+</body>
+</html>

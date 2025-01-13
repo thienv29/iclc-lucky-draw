@@ -1,0 +1,23 @@
+# Node.js modules
+node_modules/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+
+# Environment variables
+.env
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Dockerfile and related files
+Dockerfile
+.dockerignore
+
+# Test or build directories that are not needed in the container
+test/
+build/
