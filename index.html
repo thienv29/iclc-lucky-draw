@@ -169,7 +169,7 @@
     <script src="./src/js/render.js"></script>
     <script src="./src/js/main.js"></script>
     <script>
-       const socket = io('http://103.1.236.212:3111'); 
+       const socket = io('http://localhost:3111'); 
        socket.on('broadcast', (data) => {
         const visiblePrizeElements = [...document.querySelectorAll('.prize')].filter(element => getComputedStyle(element).display !== 'none');
         visiblePrizeElements.forEach(element => element.click());
