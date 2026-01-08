@@ -13,7 +13,7 @@
   <body>
     <div class="intro">
       <video id="intro-video" autoplay muted>
-        <source src="./assets/media/introv2.mp4" type="video/mp4" />
+        <source src="./assets/media/intro-2026.mp4" type="video/mp4" />
       </video>
     </div>
     <div class="root">
@@ -27,7 +27,10 @@
         <div class="media">
           <div class="music-player">
             <audio id="myAudio" src="./assets/media/musicv2.mp3"></audio>
-            <audio id="myAudio2" src="./assets/media/music-game-play.mp3"></audio>
+            <audio
+              id="myAudio2"
+              src="./assets/media/music-game-play.mp3"
+            ></audio>
           </div>
         </div>
       </div>
@@ -51,16 +54,16 @@
       </div>
       <div class="footer d-flex justify-content-center align-items-start">
         <div
-          id="giainhat"
+          id="giaimayman"
           class="prize"
           onclick="bookGift(this)"
-          data-tpe="nhat"
+          data-tpe="mayman"
         >
           <img src="./assets/icon/Asset1.png" style="width: 320px" />
           <div
             class="amount-gift"
-            id="amount-nhat"
-            onclick="renderResultLatest('nhat')"
+            id="amount-mayman"
+            onclick="renderResultLatest('mayman')"
           >
             20
           </div>
@@ -106,24 +109,6 @@
             20
           </div>
         </div>
-        <!-- <div
-          id="giaimayman"
-          class="prize"
-          onclick="bookGift(this)"
-          data-tpe="mayman"
-        >
-          <img
-            src="./assets/icon/Asset5.png"
-            style="width: 210px; margin-top: 30px"
-          />
-          <div
-            class="amount-gift"
-            id="amount-mayman"
-            onclick="renderResultLatest('mayman')"
-          >
-            20
-          </div>
-        </div> -->
       </div>
     </div>
 
@@ -169,14 +154,15 @@
     <script src="./src/js/render.js"></script>
     <script src="./src/js/main.js"></script>
     <script>
-       const socket = io('http://103.1.236.212:3111'); 
-       socket.on('broadcast', (data) => {
-        const visiblePrizeElements = [...document.querySelectorAll('.prize')].filter(element => getComputedStyle(element).display !== 'none');
-        visiblePrizeElements.forEach(element => element.click());
-        console.log('Broadcast received:', data);
-      });
+      const socket = io('http://103.1.236.212:3111')
+      socket.on('broadcast', (data) => {
+        const visiblePrizeElements = [
+          ...document.querySelectorAll('.prize'),
+        ].filter((element) => getComputedStyle(element).display !== 'none')
+        visiblePrizeElements.forEach((element) => element.click())
+        console.log('Broadcast received:', data)
+      })
     </script>
-
-    
   </body>
 </html>
+<script src="./src/js/render.js"></script>

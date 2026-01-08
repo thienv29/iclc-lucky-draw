@@ -8,7 +8,7 @@ const config = {
   nhi: 2,
   ba: 3,
   khuyenkhich: 5,
-  mayman: totalMember - 16,
+  mayman: 1,
 };
 var maymanResult = [];
 var khuyenkhichResult = [];
@@ -58,7 +58,7 @@ function createArrayByNumber(soLuong) {
 function reset() {
   totalMember = 145;
   member = createArrayByNumber(totalMember);
-  config.mayman = totalMember - 16;
+  config.mayman = 1;
   $(`#amount-nhat`).text(config.nhat);
   $(`#amount-nhi`).text(config.nhi);
   $(`#amount-ba`).text(config.ba);
@@ -142,7 +142,7 @@ function bookGift(element) {
       break;
     case "mayman":
       resultToRender = Math.min(config.mayman, 10);
-      ribbonSrc = 5;
+      ribbonSrc = 1;
       break;
   }
   config[typeGift] = config[typeGift] - resultToRender;
@@ -163,7 +163,7 @@ function getSTT(typeGift) {
     case "khuyenkhich":
       return 4;
     case "mayman":
-      return 5;
+      return 1;
   }
 }
 
