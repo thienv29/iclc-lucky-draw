@@ -38,8 +38,7 @@
         <div class="d-flex justify-content-center align-items-center">
           <img
             id="ribbon-img"
-            src="./assets/ribbon/ribbon5.png"
-            style="width: 800px; height: 210px; margin-bottom: 100px"
+            style="width: 800px; height: 210px; margin-bottom: 100px; display: none;"
             alt=""
           />
         </div>
@@ -52,18 +51,18 @@
           </div>
         </div>
       </div>
-      <div class="footer d-flex justify-content-center align-items-start">
+      <div class="footer d-flex justify-content-center align-items-start" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%;">
         <div
-          id="giaimayman"
+          id="giainhat"
           class="prize"
           onclick="bookGift(this)"
-          data-tpe="mayman"
+          data-tpe="nhat"
         >
           <img src="./assets/icon/Asset1.png" style="width: 320px" />
           <div
             class="amount-gift"
-            id="amount-mayman"
-            onclick="renderResultLatest('mayman')"
+            id="amount-nhat"
+            onclick="renderResultLatest('nhat')"
           >
             20
           </div>
@@ -160,9 +159,7 @@
           ...document.querySelectorAll('.prize'),
         ].filter((element) => getComputedStyle(element).display !== 'none')
         visiblePrizeElements.forEach((element) => element.click())
-        console.log('Broadcast received:', data)
       })
     </script>
   </body>
 </html>
-<script src="./src/js/render.js"></script>

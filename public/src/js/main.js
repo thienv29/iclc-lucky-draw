@@ -2,11 +2,10 @@ $(document).ready(function () {
   var selectedPrize = null
   function exportResultsToCSV() {
     const allResults = [
-      { name: 'May mắn', data: maymanResult },
-      { name: 'Khuyến khích', data: khuyenkhichResult },
-      { name: 'Ba', data: baResult },
-      { name: 'Nhì', data: nhiResult },
       { name: 'Nhất', data: nhatResult },
+      { name: 'Nhì', data: nhiResult },
+      { name: 'Ba', data: baResult },
+      { name: 'Khuyến khích', data: khuyenkhichResult },
     ]
 
     let csvContent = ''
@@ -38,6 +37,7 @@ $(document).ready(function () {
   }
   function showAllGifts() {
     $('.prize').show()
+    $('.footer').css({'top': '50%', 'bottom': 'auto', 'left': '50%', 'transform': 'translate(-50%, -50%)'})
   }
   // Function to show the specified gift div9
   function showGift(giftType) {
@@ -74,29 +74,39 @@ $(document).ready(function () {
         video[0].pause()
       }
     }
+    if (event.key == 'n' || event.key == 'N') {
+      video[0].pause()
+      jQuery('.intro').fadeOut(1000, function () {
+        jQuery(this).remove()
+      })
+    }
     if (event.key == '1') {
-      selectedPrize = 'giaimayman'
-      showGift('giaimayman')
+      selectedPrize = 'giainhat'
+      showGift('giainhat')
       emptyResult()
       setRibbon(1)
+      $('.footer').css({'top': 'auto', 'bottom': '0', 'left': '50%', 'transform': 'translateX(-50%)'})
     }
     if (event.key == '2') {
       selectedPrize = 'giainhi'
       showGift('giainhi')
       emptyResult()
       setRibbon(2)
+      $('.footer').css({'top': 'auto', 'bottom': '0', 'left': '50%', 'transform': 'translateX(-50%)'})
     }
     if (event.key == '3') {
       selectedPrize = 'giaiba'
       showGift('giaiba')
       emptyResult()
       setRibbon(3)
+      $('.footer').css({'top': 'auto', 'bottom': '0', 'left': '50%', 'transform': 'translateX(-50%)'})
     }
     if (event.key == '4') {
       selectedPrize = 'giaikhuyenkhich'
       showGift('giaikhuyenkhich')
       emptyResult()
       setRibbon(4)
+      $('.footer').css({'top': 'auto', 'bottom': '0', 'left': '50%', 'transform': 'translateX(-50%)'})
     }
     if (event.key == ' ') {
       if (selectedPrize) {
@@ -111,3 +121,5 @@ $(document).ready(function () {
     }
   })
 })
+
+showAllGifts()
