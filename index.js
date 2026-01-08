@@ -12,6 +12,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'views/index.html'));
 });
 
+// Serve the remote HTML file
+app.get('/remote', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views/remote.html'));
+});
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);

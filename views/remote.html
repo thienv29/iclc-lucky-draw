@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quay Số</title>
-    <script src="/socket.io.min.js"></script>
     <style>
         body {
             display: flex;
@@ -53,7 +52,7 @@
     </style>
 </head>
 <body>
-    <button id="sendButton">
+    <button id="actionButton" onclick="handleClick()">
         <img src="/ICLClogo.png" alt="Logo">
     </button>
 
@@ -72,7 +71,7 @@
           animation-timing-function: linear;
           animation-iteration-count: infinite;
         }
-        
+
         @keyframes fall {
           0% {
             transform: translateY(0);
@@ -93,7 +92,7 @@
           const tetEmojis = ["🌸", "🧧", "🎉", "🏵️"]; // Các emoji Tết
           let snowflakeInterval = 100; // Thời gian ban đầu giữa các lần tạo (ms)
           let snowflakeCount = 0; // Đếm số lần tạo tuyết
-        
+
           const createSnowflake = () => {
             const snowflake = document.createElement("div");
             snowflake.className = "snowflake";
@@ -102,66 +101,53 @@
             snowflake.style.animationDuration = Math.random() * 3 + 10 + "s"; // Tốc độ rơi (3-6 giây)
             snowflake.style.fontSize = Math.random() * 15 + 25 + "px"; // Kích thước (25-40px)
             document.body.appendChild(snowflake);
-        
+
             // Xóa emoji sau khi hoàn thành
             snowflake.addEventListener("animationend", () => {
               snowflake.remove();
             });
           };
-        
+
           const startSnowfall = () => {
             const intervalId = setInterval(() => {
               createSnowflake();
               snowflakeCount++;
-        
+
               // Giảm tốc độ tạo dần theo thời gian
               if (snowflakeCount % 20 === 0 && snowflakeInterval < 2000) {
                 snowflakeInterval += 200; // Tăng thời gian giữa các lần tạo
                 clearInterval(intervalId); // Dừng interval cũ
                 startSnowfall(); // Bắt đầu với interval mới
               }
-        
+
               // Dừng hiệu ứng sau một khoảng thời gian
             //   if (snowflakeCount > 15) {
             //     clearInterval(intervalId);
             //   }
             }, snowflakeInterval);
           };
-        
+
           startSnowfall(); // Bắt đầu hiệu ứng
         });
         </script>
 
     <script>
-        const socket = io();
-        const sendButton = document.getElementById('sendButton');
+        const actionButton = document.getElementById('actionButton');
 
-        sendButton.addEventListener('click', () => {
-            const message = { action: "quay so" };
-
+        actionButton.addEventListener('click', () => {
             // Thêm hiệu ứng rung và xung nhịp vào ảnh
-            sendButton.classList.add('shaking');
-            sendButton.classList.add('pulsing');
-
-            // Gửi thông điệp đến server
-            socket.send(JSON.stringify(message));
+            actionButton.classList.add('shaking');
+            actionButton.classList.add('pulsing');
 
             // Xóa hiệu ứng rung sau 0.5 giây
             setTimeout(() => {
-                sendButton.classList.remove('shaking');
+                actionButton.classList.remove('shaking');
             }, 500);
 
-            // Tạm thời disable nút (nếu cần)
-            sendButton.disabled = true;
-
+            // Xóa hiệu ứng xung nhịp sau 2 giây
             setTimeout(() => {
-                sendButton.disabled = false;
-            }, 3000);
-        });
-
-        socket.on('message', (data) => {
-            console.log('Server response:', data);
-            sendButton.classList.remove('pulsing');
+                actionButton.classList.remove('pulsing');
+            }, 2000);
         });
     </script>
 </body>
