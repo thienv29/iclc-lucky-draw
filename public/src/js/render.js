@@ -12,6 +12,7 @@ const config = {
 var nhatResult = []
 var nhiResult = []
 var baResult = []
+var khuyenkhichResult = []
 
 reset()
 function appearResult(typeGift) {
@@ -129,17 +130,23 @@ function bookGift(element) {
       ribbonSrc = 4
       break
   }
+  resultToRender = Math.min(resultToRender, member.length)
   if (config[typeGift] == 0 || resultToRender == 0) {
     $(`#amount-${typeGift}`)
       .attr('data-toggle', 'modal')
-      .attr('data-target', '#exampleModal');
+      .attr('data-target', '#exampleModal')
   }
   config[typeGift] = config[typeGift] - resultToRender
 
   $(`#amount-${typeGift}`).text(config[typeGift])
   renderResult(resultToRender, typeGift)
   setRibbon(ribbonSrc)
-  $('.footer').css({'top': 'auto', 'bottom': '0', 'left': '50%', 'transform': 'translateX(-50%)'})
+  $('.footer').css({
+    top: 'auto',
+    bottom: '0',
+    left: '50%',
+    transform: 'translateX(-50%)',
+  })
 }
 
 function getSTT(typeGift) {
