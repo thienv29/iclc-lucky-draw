@@ -111,11 +111,6 @@ function bookGift(element) {
   let resultToRender = 0
   let ribbonSrc = 1
 
-  if (config[typeGift] == 0) {
-    $(`#amount-${typeGift}`)
-      .attr('data-toggle', 'modal')
-      .attr('data-target', '#exampleModal')
-  }
   switch (typeGift) {
     case 'nhat':
       resultToRender = Math.min(config.nhat, 1)
@@ -133,6 +128,11 @@ function bookGift(element) {
       resultToRender = Math.min(config.khuyenkhich, 5)
       ribbonSrc = 4
       break
+  }
+  if (config[typeGift] == 0 || resultToRender == 0) {
+    $(`#amount-${typeGift}`)
+      .attr('data-toggle', 'modal')
+      .attr('data-target', '#exampleModal');
   }
   config[typeGift] = config[typeGift] - resultToRender
 

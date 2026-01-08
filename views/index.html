@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="./src/css/result-random.css" />
     <link rel="stylesheet" href="./assets/lib/css/bootstrap.min.css" />
     <link rel="stylesheet" href="./assets/lib/css/animate.min.css" />
-    <script src="./assets/lib/js/socket.io.min.js"></script>
   </head>
   <body>
     <div class="intro">
@@ -38,7 +37,12 @@
         <div class="d-flex justify-content-center align-items-center">
           <img
             id="ribbon-img"
-            style="width: 800px; height: 210px; margin-bottom: 100px; display: none;"
+            style="
+              width: 800px;
+              height: 210px;
+              margin-bottom: 100px;
+              display: none;
+            "
             alt=""
           />
         </div>
@@ -51,7 +55,16 @@
           </div>
         </div>
       </div>
-      <div class="footer d-flex justify-content-center align-items-start" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%;">
+      <div
+        class="footer d-flex justify-content-center align-items-start"
+        style="
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 100%;
+        "
+      >
         <div
           id="giainhat"
           class="prize"
@@ -152,14 +165,5 @@
     <script src="./assets/lib/js/bootstrap.min.js"></script>
     <script src="./src/js/render.js"></script>
     <script src="./src/js/main.js"></script>
-    <script>
-      const socket = io('http://103.1.236.212:3111')
-      socket.on('broadcast', (data) => {
-        const visiblePrizeElements = [
-          ...document.querySelectorAll('.prize'),
-        ].filter((element) => getComputedStyle(element).display !== 'none')
-        visiblePrizeElements.forEach((element) => element.click())
-      })
-    </script>
   </body>
 </html>

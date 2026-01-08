@@ -38,6 +38,7 @@ $(document).ready(function () {
   function showAllGifts() {
     $('.prize').show()
     $('.footer').css({'top': '50%', 'bottom': 'auto', 'left': '50%', 'transform': 'translate(-50%, -50%)'})
+    emptyResult()
   }
   // Function to show the specified gift div9
   function showGift(giftType) {
