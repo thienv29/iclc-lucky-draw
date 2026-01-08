@@ -44,7 +44,7 @@ $(document).ready(function () {
       transform: 'translate(-50%, -50%)',
     })
     emptyResult()
-    setRibbon('')
+    $('#ribbon-img').hide()
   }
   // Function to show the specified gift div9
   function showGift(giftType) {
@@ -145,6 +145,11 @@ $(document).ready(function () {
     }
     if (event.key == '7') {
       exportResultsToCSV()
+    }
+    if (event.key == 's' || event.key == 'S') {
+      if (selectedPrize) {
+        renderSelectedPrizeResults(selectedPrize)
+      }
     }
   })
 })

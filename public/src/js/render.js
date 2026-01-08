@@ -215,3 +215,45 @@ function renderResultLatest(typeGift) {
     })
   }
 }
+
+function renderSelectedPrizeResults(prizeId) {
+  const typeGift = $(`#${prizeId}`).attr('data-tpe')
+  let result = []
+  switch (typeGift) {
+    case 'nhat':
+      result = nhatResult
+      break
+    case 'nhi':
+      result = nhiResult
+      break
+    case 'ba':
+      result = baResult
+      break
+    case 'khuyenkhich':
+      result = khuyenkhichResult
+      break
+  }
+
+  if (result && result.length > 0) {
+    const paletteResult = $('#palette-result')
+    paletteResult.empty()
+
+    // Flatten all results and render them
+    const allNumbers = result.flat()
+    allNumbers.forEach((number) => {
+      const colorDiv = $('<div>').addClass('color in bg-frame' + getSTT(typeGift)).attr('data-value', number)
+      const spanNumber = $('<span>').text(number)
+      colorDiv.append(spanNumber)
+      paletteResult.append(colorDiv)
+    })
+
+    // Set ribbon and footer position
+    setRibbon(getSTT(typeGift))
+    $('.footer').css({
+      top: 'auto',
+      bottom: '0',
+      left: '50%',
+      transform: 'translateX(-50%)',
+    })
+  }
+}
