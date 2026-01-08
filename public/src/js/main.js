@@ -37,8 +37,14 @@ $(document).ready(function () {
   }
   function showAllGifts() {
     $('.prize').show()
-    $('.footer').css({'top': '50%', 'bottom': 'auto', 'left': '50%', 'transform': 'translate(-50%, -50%)'})
+    $('.footer').css({
+      top: '50%',
+      bottom: 'auto',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+    })
     emptyResult()
+    setRibbon('')
   }
   // Function to show the specified gift div9
   function showGift(giftType) {
@@ -86,28 +92,48 @@ $(document).ready(function () {
       showGift('giainhat')
       emptyResult()
       setRibbon(1)
-      $('.footer').css({'top': 'auto', 'bottom': '0', 'left': '50%', 'transform': 'translateX(-50%)'})
+      $('.footer').css({
+        top: 'auto',
+        bottom: '0',
+        left: '50%',
+        transform: 'translateX(-50%)',
+      })
     }
     if (event.key == '2') {
       selectedPrize = 'giainhi'
       showGift('giainhi')
       emptyResult()
       setRibbon(2)
-      $('.footer').css({'top': 'auto', 'bottom': '0', 'left': '50%', 'transform': 'translateX(-50%)'})
+      $('.footer').css({
+        top: 'auto',
+        bottom: '0',
+        left: '50%',
+        transform: 'translateX(-50%)',
+      })
     }
     if (event.key == '3') {
       selectedPrize = 'giaiba'
       showGift('giaiba')
       emptyResult()
       setRibbon(3)
-      $('.footer').css({'top': 'auto', 'bottom': '0', 'left': '50%', 'transform': 'translateX(-50%)'})
+      $('.footer').css({
+        top: 'auto',
+        bottom: '0',
+        left: '50%',
+        transform: 'translateX(-50%)',
+      })
     }
     if (event.key == '4') {
       selectedPrize = 'giaikhuyenkhich'
       showGift('giaikhuyenkhich')
       emptyResult()
       setRibbon(4)
-      $('.footer').css({'top': 'auto', 'bottom': '0', 'left': '50%', 'transform': 'translateX(-50%)'})
+      $('.footer').css({
+        top: 'auto',
+        bottom: '0',
+        left: '50%',
+        transform: 'translateX(-50%)',
+      })
     }
     if (event.key == ' ') {
       if (selectedPrize) {
