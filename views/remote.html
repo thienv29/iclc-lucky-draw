@@ -1,154 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quay Số</title>
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+      }
+      button {
+        border: none;
+        background-color: transparent;
+        padding: 0;
+        cursor: pointer;
+      }
+      button img {
+        width: 80vw; /* Kích thước ảnh */
+        height: auto;
+        transition: transform 0.3s ease, filter 0.3s ease;
+      }
+      button img:hover {
+        transform: scale(1.1); /* Phóng to khi hover */
+        filter: brightness(1.2); /* Tăng độ sáng khi hover */
+      }
+      button img:active {
+        transform: scale(0.95) rotate(10deg); /* Nhỏ lại và xoay khi click */
+      }
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
         }
-        button {
-            border: none;
-            background-color: transparent;
-            padding: 0;
-            cursor: pointer;
+        25% {
+          transform: translateX(-5px);
         }
-        button img {
-            width: 80vw; /* Kích thước ảnh */
-            height: auto;
-            transition: transform 0.3s ease, filter 0.3s ease;
+        50% {
+          transform: translateX(5px);
         }
-        button img:hover {
-            transform: scale(1.1); /* Phóng to khi hover */
-            filter: brightness(1.2); /* Tăng độ sáng khi hover */
+        75% {
+          transform: translateX(-5px);
         }
-        button img:active {
-            transform: scale(0.95) rotate(10deg); /* Nhỏ lại và xoay khi click */
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
         }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
+        50% {
+          transform: scale(1.1);
         }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+        100% {
+          transform: scale(1);
         }
-        .shaking img {
-            animation: shake 0.5s;
-        }
-        .pulsing img {
-            animation: pulse 1s infinite;
-        }
+      }
+      .shaking img {
+        animation: shake 0.5s;
+      }
+      .pulsing img {
+        animation: pulse 1s infinite;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <button id="actionButton" onclick="handleClick()">
-        <img src="/ICLClogo.png" alt="Logo">
+      <img src="/ICLClogo.png" alt="Logo" />
     </button>
 
     <style>
-        body {
-          position: relative;
-          overflow-x: hidden; /* Ngăn cuộn ngang */
+      body {
+        position: relative;
+        overflow-x: hidden; /* Ngăn cuộn ngang */
+      }
+      .snowflake {
+        position: fixed;
+        top: -50px;
+        user-select: none;
+        z-index: 9999;
+        pointer-events: none;
+        animation-name: fall;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+      }
+
+      @keyframes fall {
+        0% {
+          transform: translateY(0);
+          opacity: 1;
         }
-        .snowflake {
-          position: fixed;
-          top: -50px;
-          user-select: none;
-          z-index: 9999;
-          pointer-events: none;
-          animation-name: fall;
-          animation-timing-function: linear;
-          animation-iteration-count: infinite;
+        50% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(100vh);
+          opacity: 0;
+        }
+      }
+    </style>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const tetEmojis = ['🌸', '🧧', '🎉', '🏵️'] // Các emoji Tết
+        let snowflakeInterval = 100 // Thời gian ban đầu giữa các lần tạo (ms)
+        let snowflakeCount = 0 // Đếm số lần tạo tuyết
+
+        const createSnowflake = () => {
+          const snowflake = document.createElement('div')
+          snowflake.className = 'snowflake'
+          snowflake.textContent =
+            tetEmojis[Math.floor(Math.random() * tetEmojis.length)]
+          snowflake.style.left = Math.random() * 100 + 'vw' // Vị trí ngang ngẫu nhiên
+          snowflake.style.animationDuration = Math.random() * 3 + 10 + 's' // Tốc độ rơi (3-6 giây)
+          snowflake.style.fontSize = Math.random() * 15 + 25 + 'px' // Kích thước (25-40px)
+          document.body.appendChild(snowflake)
+
+          // Xóa emoji sau khi hoàn thành
+          snowflake.addEventListener('animationend', () => {
+            snowflake.remove()
+          })
         }
 
-        @keyframes fall {
-          0% {
-            transform: translateY(0);
-            opacity: 1;
-          }
-          50% {
-            transform: translateY(0);
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(100vh);
-            opacity: 0;
-          }
-        }
-        </style>
-        <script>
-        document.addEventListener("DOMContentLoaded", function () {
-          const tetEmojis = ["🌸", "🧧", "🎉", "🏵️"]; // Các emoji Tết
-          let snowflakeInterval = 100; // Thời gian ban đầu giữa các lần tạo (ms)
-          let snowflakeCount = 0; // Đếm số lần tạo tuyết
+        const startSnowfall = () => {
+          const intervalId = setInterval(() => {
+            createSnowflake()
+            snowflakeCount++
 
-          const createSnowflake = () => {
-            const snowflake = document.createElement("div");
-            snowflake.className = "snowflake";
-            snowflake.textContent = tetEmojis[Math.floor(Math.random() * tetEmojis.length)];
-            snowflake.style.left = Math.random() * 100 + "vw"; // Vị trí ngang ngẫu nhiên
-            snowflake.style.animationDuration = Math.random() * 3 + 10 + "s"; // Tốc độ rơi (3-6 giây)
-            snowflake.style.fontSize = Math.random() * 15 + 25 + "px"; // Kích thước (25-40px)
-            document.body.appendChild(snowflake);
+            // Giảm tốc độ tạo dần theo thời gian
+            if (snowflakeCount % 20 === 0 && snowflakeInterval < 2000) {
+              snowflakeInterval += 200 // Tăng thời gian giữa các lần tạo
+              clearInterval(intervalId) // Dừng interval cũ
+              startSnowfall() // Bắt đầu với interval mới
+            }
 
-            // Xóa emoji sau khi hoàn thành
-            snowflake.addEventListener("animationend", () => {
-              snowflake.remove();
-            });
-          };
-
-          const startSnowfall = () => {
-            const intervalId = setInterval(() => {
-              createSnowflake();
-              snowflakeCount++;
-
-              // Giảm tốc độ tạo dần theo thời gian
-              if (snowflakeCount % 20 === 0 && snowflakeInterval < 2000) {
-                snowflakeInterval += 200; // Tăng thời gian giữa các lần tạo
-                clearInterval(intervalId); // Dừng interval cũ
-                startSnowfall(); // Bắt đầu với interval mới
-              }
-
-              // Dừng hiệu ứng sau một khoảng thời gian
+            // Dừng hiệu ứng sau một khoảng thời gian
             //   if (snowflakeCount > 15) {
             //     clearInterval(intervalId);
             //   }
-            }, snowflakeInterval);
-          };
+          }, snowflakeInterval)
+        }
 
-          startSnowfall(); // Bắt đầu hiệu ứng
-        });
-        </script>
+        startSnowfall() // Bắt đầu hiệu ứng
+      })
+    </script>
 
     <script>
-        const actionButton = document.getElementById('actionButton');
+      const actionButton = document.getElementById('actionButton')
 
-        actionButton.addEventListener('click', () => {
-            // Thêm hiệu ứng rung và xung nhịp vào ảnh
-            actionButton.classList.add('shaking');
-            actionButton.classList.add('pulsing');
+      actionButton.addEventListener('click', () => {
+        // Thêm hiệu ứng rung và xung nhịp vào ảnh
+        actionButton.classList.add('shaking')
+        actionButton.classList.add('pulsing')
 
-            // Xóa hiệu ứng rung sau 0.5 giây
-            setTimeout(() => {
-                actionButton.classList.remove('shaking');
-            }, 500);
+        // Xóa hiệu ứng rung sau 0.5 giây
+        setTimeout(() => {
+          actionButton.classList.remove('shaking')
+        }, 500)
 
-            // Xóa hiệu ứng xung nhịp sau 2 giây
-            setTimeout(() => {
-                actionButton.classList.remove('pulsing');
-            }, 2000);
-        });
+        // Xóa hiệu ứng xung nhịp sau 2 giây
+        setTimeout(() => {
+          actionButton.classList.remove('pulsing')
+        }, 2000)
+      })
     </script>
-</body>
+  </body>
 </html>
