@@ -51,13 +51,30 @@ function createArrayByNumber(soLuong) {
 }
 
 function reset() {
-  totalMember = 145
-  member = createArrayByNumber(totalMember)
-  config.nhat = 1
-  $(`#amount-nhat`).text(config.nhat)
-  $(`#amount-nhi`).text(config.nhi)
-  $(`#amount-ba`).text(config.ba)
-  $(`#amount-khuyenkhich`).text(config.khuyenkhich)
+  // Fetch total members from API
+  fetch('/api/total-members')
+    .then(response => response.json())
+    .then(data => {
+      totalMember = data.totalMembers || 0
+      member = createArrayByNumber(totalMember)
+      config.totalMember = totalMember
+
+      // Update prize amounts
+      config.nhat = 1
+      $(`#amount-nhat`).text(config.nhat)
+      $(`#amount-nhi`).text(config.nhi)
+      $(`#amount-ba`).text(config.ba)
+      $(`#amount-khuyenkhich`).text(config.khuyenkhich)
+
+      console.log('Total members loaded:', totalMember)
+    })
+    .catch(error => {
+      console.error('Error loading total members:', error)
+      // Fallback to 0 if API fails
+      totalMember = 0
+      member = []
+      config.totalMember = totalMember
+    })
 }
 
 function getRandomAndRemove(numberOfRandoms) {

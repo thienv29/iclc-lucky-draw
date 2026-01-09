@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Form Input</title>
+    <link rel="stylesheet" href="./assets/lib/css/bootstrap.min.css" />
+
+    <style>
+      body {
+        background: linear-gradient(135deg, #f3e8ff, #fef7ff);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(102, 40, 114, 0.1);
+        overflow: hidden;
+        animation: fadeInUp 0.6s ease;
+      }
+
+      .card-header {
+        background: linear-gradient(135deg, #662872, #8b5cf6);
+        text-align: center;
+        padding: 20px;
+      }
+
+      .card-header h4 {
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+
+      .card-body {
+        padding: 30px;
+        background-color: #ffffff;
+      }
+
+      .form-group label {
+        font-weight: 600;
+        color: #333;
+      }
+
+      .form-control {
+        border-radius: 10px;
+        padding: 15px 14px;
+        border: 1px solid #ced4da;
+        transition: all 0.3s ease;
+        min-height: 50px;
+      }
+
+      .form-control:focus {
+        border-color: #662872;
+        box-shadow: 0 0 0 0.15rem rgba(102, 40, 114, 0.25);
+      }
+
+      textarea.form-control {
+        resize: none;
+      }
+
+      .btn-primary {
+        border-radius: 12px;
+        padding: 12px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        background: linear-gradient(135deg, #662872, #8b5cf6);
+        border: none;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 40, 114, 0.35);
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      class="container-fluid d-flex align-items-center justify-content-center min-vh-100"
+    >
+      <div class="row justify-content-center w-100">
+        <div class="col-md-6 col-lg-4">
+          <div class="card">
+            <div class="card-header bg-primary text-white">
+              <h4 class="card-title mb-0">I-CLC YEP 2025</h4>
+            </div>
+            <div class="card-body">
+              <form id="inputForm">
+                <div class="form-group">
+                  <label for="name">Your Fullname</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="name"
+                    name="name"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="department">Department</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="department"
+                    name="department"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="note">Note</label>
+                  <textarea
+                    class="form-control"
+                    id="note"
+                    name="note"
+                    rows="3"
+                  ></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                  CHECK-IN
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 60px rgba(102, 40, 114, 0.3);">
+          <div class="modal-body text-center p-5">
+            <div class="success-icon mb-4">
+              <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #662872, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; box-shadow: 0 10px 30px rgba(102, 40, 114, 0.3);">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20 6L9 17L4 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+            <h3 class="mb-3" style="color: #662872; font-weight: 700;">Check-in Success!</h3>
+            <p class="mb-2" style="color: #666; font-size: 1.1em;">Your lucky number is:</p>
+            <div class="lucky-number-display mb-4">
+              <span id="luckyNumberDisplay" style="font-size: 3em; font-weight: 900; color: #662872; text-shadow: 2px 2px 4px rgba(102, 40, 114, 0.3);">#</span>
+            </div>
+            <p class="mb-4" style="color: #888;">Thank you for participating in I-CLC YEP 2025!</p>
+            <button type="button" class="btn" data-dismiss="modal" style="background: linear-gradient(135deg, #662872, #8b5cf6); color: white; border: none; border-radius: 12px; padding: 12px 30px; font-weight: 600; transition: all 0.3s ease;">
+              Continue
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./assets/lib/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="./assets/lib/js/popper.min.js"></script>
+    <script src="./assets/lib/js/bootstrap.min.js"></script>
+    <script>
+      document
+        .getElementById('inputForm')
+        .addEventListener('submit', function (event) {
+          event.preventDefault()
+          const formData = new FormData(this)
+          const data = {
+            name: formData.get('name'),
+            department: formData.get('department'),
+            note: formData.get('note'),
+          }
+
+          // Send data to server
+          fetch('/checkin', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          })
+            .then((response) => response.json())
+            .then((result) => {
+              if (result.success) {
+                // Show success modal with lucky number
+                document.getElementById('luckyNumberDisplay').textContent = '#' + result.luckyNumber;
+                $('#successModal').modal('show');
+
+                // Reset form when modal is closed
+                $('#successModal').on('hidden.bs.modal', function () {
+                  document.getElementById('inputForm').reset();
+                });
+              } else {
+                alert('Error: ' + result.message)
+              }
+            })
+            .catch((error) => {
+              console.error('Error:', error)
+              alert('An error occurred while submitting the form.')
+            })
+        })
+    </script>
+  </body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check-in List</title>
+    <link rel="stylesheet" href="./assets/lib/css/bootstrap.min.css">
+    <style>
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f3e8ff, #fef7ff);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(102, 40, 114, 0.1);
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #662872, #8b5cf6);
+            text-align: center;
+            padding: 20px;
+        }
+
+        .card-header h4 {
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            background-color: #662872;
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+
+        .table td {
+            border-top: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+
+        .lucky-number {
+            font-weight: bold;
+            color: #662872;
+            font-size: 1.2em;
+        }
+
+        .btn-refresh {
+            background: linear-gradient(135deg, #662872, #8b5cf6);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-refresh:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 40, 114, 0.3);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #662872;
+        }
+
+        /* Custom scrollbar styles */
+        .table-responsive::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: #662872;
+            border-radius: 4px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: #5a1f6b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid d-flex align-items-center justify-content-center min-vh-100">
+        <div class="row justify-content-center w-100">
+            <div class="col-12 col-lg-10 col-xl-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="card-title mb-0">Check-in List - I-CLC YEP 2025</h4>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="p-3 d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Total Check-ins: <span id="totalCount">0</span></h5>
+                            <button id="refreshBtn" class="btn-refresh">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                        <div id="loading" class="loading">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <p class="mt-2">Loading check-in data...</p>
+                        </div>
+                        <div id="tableContainer" style="display: none;">
+                            <div class="table-responsive" style="max-height: 60vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #662872 #f1f1f1;">
+                                <table class="table table-hover mb-0">
+                                    <thead class="sticky-top">
+                                        <tr>
+                                            <th>Lucky Number</th>
+                                            <th>Name</th>
+                                            <th>Department</th>
+                                            <th>Note</th>
+                                            <th>Check-in Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="checkinTableBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./assets/lib/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="./assets/lib/js/popper.min.js"></script>
+    <script src="./assets/lib/js/bootstrap.min.js"></script>
+    <script>
+        function loadCheckinData() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('tableContainer').style.display = 'none';
+
+            fetch('/api/checkins')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('tableContainer').style.display = 'block';
+
+                    const tbody = document.getElementById('checkinTableBody');
+                    const totalCount = document.getElementById('totalCount');
+
+                    totalCount.textContent = data.length;
+
+                    tbody.innerHTML = '';
+
+                    data.forEach(item => {
+                        const row = document.createElement('tr');
+
+                        // Format date
+                        const checkinDate = new Date(item.created_at);
+                        const formattedDate = checkinDate.toLocaleString('vi-VN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                        });
+
+                        row.innerHTML = `
+                            <td><span class="lucky-number">#${item.id}</span></td>
+                            <td>${item.name}</td>
+                            <td>${item.department}</td>
+                            <td>${item.note || '-'}</td>
+                            <td>${formattedDate}</td>
+                        `;
+
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading data:', error);
+                    document.getElementById('loading').innerHTML = `
+                        <p class="text-danger">Error loading data. Please try again.</p>
+                        <button onclick="loadCheckinData()" class="btn btn-primary">Retry</button>
+                    `;
+                });
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', loadCheckinData);
+
+        // Refresh button
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            this.disabled = true;
+
+            loadCheckinData();
+
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+                this.disabled = false;
+            }, 1000);
+        });
+
+        // Auto refresh every 30 seconds
+        setInterval(loadCheckinData, 30000);
+    </script>
+</body>
+</html>
