@@ -3,6 +3,7 @@ require('dotenv').config()
 const express = require('express')
 const path = require('path')
 const mysql = require('mysql2')
+const XLSX = require('xlsx')
 
 const app = express()
 const PORT = process.env.PORT || 3111
@@ -98,6 +99,61 @@ app.get('/api/total-members', (req, res) => {
 
     const maxId = results[0].maxId || 0
     res.json({ totalMembers: maxId })
+  })
+})
+
+// API endpoint to export check-in data to Excel
+app.get('/api/export-checkins', (req, res) => {
+  const query = 'SELECT id, name, department, note, created_at FROM checkin_iclc_2026 ORDER BY id ASC'
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching data for export:', err)
+      return res.status(500).json({ success: false, message: 'Database error' })
+    }
+
+    // Prepare data for Excel
+    const excelData = results.map(item => ({
+      'Lucky Number': item.id,
+      'Name': item.name,
+      'Department': item.department,
+      'Note': item.note || '',
+      'Check-in Time': new Date(item.created_at).toLocaleString('vi-VN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      })
+    }))
+
+    // Create workbook and worksheet
+    const workbook = XLSX.utils.book_new()
+    const worksheet = XLSX.utils.json_to_sheet(excelData)
+
+    // Set column widths
+    worksheet['!cols'] = [
+      { wch: 12 }, // Lucky Number
+      { wch: 30 }, // Name
+      { wch: 20 }, // Department
+      { wch: 40 }, // Note
+      { wch: 20 }  // Check-in Time
+    ]
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Check-in List')
+
+    // Generate filename with current date
+    const now = new Date()
+    const dateStr = now.toISOString().split('T')[0] // YYYY-MM-DD format
+    const filename = `checkin_list_${dateStr}.xlsx`
+
+    // Send file as response
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    res.setHeader('Content-Disposition', `attachment; filename=${filename}`)
+
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
+    res.send(buffer)
   })
 })
 

@@ -136,25 +136,92 @@
     </div>
 
     <!-- Success Modal -->
-    <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="successModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="successModalLabel"
+      aria-hidden="true"
+    >
       <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 60px rgba(102, 40, 114, 0.3);">
+        <div
+          class="modal-content"
+          style="
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(102, 40, 114, 0.3);
+          "
+        >
           <div class="modal-body text-center p-5">
             <div class="success-icon mb-4">
-              <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #662872, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; box-shadow: 0 10px 30px rgba(102, 40, 114, 0.3);">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20 6L9 17L4 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <div
+                style="
+                  width: 80px;
+                  height: 80px;
+                  background: linear-gradient(135deg, #662872, #8b5cf6);
+                  border-radius: 50%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  margin: 0 auto;
+                  box-shadow: 0 10px 30px rgba(102, 40, 114, 0.3);
+                "
+              >
+                <svg
+                  width="40"
+                  height="40"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M20 6L9 17L4 12"
+                    stroke="white"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
                 </svg>
               </div>
             </div>
-            <h3 class="mb-3" style="color: #662872; font-weight: 700;">Check-in Success!</h3>
-            <p class="mb-2" style="color: #666; font-size: 1.1em;">Your lucky number is:</p>
+            <h3 class="mb-3" style="color: #662872; font-weight: 700">
+              Check-in Success!
+            </h3>
+            <p class="mb-2" style="color: #666; font-size: 1.1em">
+              Your lucky number is:
+            </p>
             <div class="lucky-number-display mb-4">
-              <span id="luckyNumberDisplay" style="font-size: 3em; font-weight: 900; color: #662872; text-shadow: 2px 2px 4px rgba(102, 40, 114, 0.3);">#</span>
+              <span
+                id="luckyNumberDisplay"
+                style="
+                  font-size: 3em;
+                  font-weight: 900;
+                  color: #662872;
+                  text-shadow: 2px 2px 4px rgba(102, 40, 114, 0.3);
+                "
+                >#</span
+              >
             </div>
-            <p class="mb-4" style="color: #888;">Thank you for participating in I-CLC YEP 2025!</p>
-            <button type="button" class="btn" data-dismiss="modal" style="background: linear-gradient(135deg, #662872, #8b5cf6); color: white; border: none; border-radius: 12px; padding: 12px 30px; font-weight: 600; transition: all 0.3s ease;">
-              Continue
+            <p class="mb-4" style="color: #888">
+              Thank you for participating in <br />
+              I-CLC YEP 2025!
+            </p>
+            <button
+              type="button"
+              class="btn"
+              data-dismiss="modal"
+              style="
+                background: linear-gradient(135deg, #662872, #8b5cf6);
+                color: white;
+                border: none;
+                border-radius: 12px;
+                padding: 12px 30px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+              "
+            >
+              OK
             </button>
           </div>
         </div>
@@ -188,13 +255,14 @@
             .then((result) => {
               if (result.success) {
                 // Show success modal with lucky number
-                document.getElementById('luckyNumberDisplay').textContent = '#' + result.luckyNumber;
-                $('#successModal').modal('show');
+                document.getElementById('luckyNumberDisplay').textContent =
+                  '#' + result.luckyNumber
+                $('#successModal').modal('show')
 
                 // Reset form when modal is closed
                 $('#successModal').on('hidden.bs.modal', function () {
-                  document.getElementById('inputForm').reset();
-                });
+                  document.getElementById('inputForm').reset()
+                })
               } else {
                 alert('Error: ' + result.message)
               }

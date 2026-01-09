@@ -53,8 +53,8 @@ function createArrayByNumber(soLuong) {
 function reset() {
   // Fetch total members from API
   fetch('/api/total-members')
-    .then(response => response.json())
-    .then(data => {
+    .then((response) => response.json())
+    .then((data) => {
       totalMember = data.totalMembers || 0
       member = createArrayByNumber(totalMember)
       config.totalMember = totalMember
@@ -68,12 +68,13 @@ function reset() {
 
       console.log('Total members loaded:', totalMember)
     })
-    .catch(error => {
+    .catch((error) => {
       console.error('Error loading total members:', error)
-      // Fallback to 0 if API fails
-      totalMember = 0
+      // Don't proceed with lucky draw if we can't get total members
+      totalMember = 150
       member = []
       config.totalMember = totalMember
+      console.log('Cannot proceed with lucky draw - database connection failed')
     })
 }
 
@@ -258,7 +259,9 @@ function renderSelectedPrizeResults(prizeId) {
     // Flatten all results and render them
     const allNumbers = result.flat()
     allNumbers.forEach((number) => {
-      const colorDiv = $('<div>').addClass('color in bg-frame' + getSTT(typeGift)).attr('data-value', number)
+      const colorDiv = $('<div>')
+        .addClass('color in bg-frame' + getSTT(typeGift))
+        .attr('data-value', number)
       const spanNumber = $('<span>').text(number)
       colorDiv.append(spanNumber)
       paletteResult.append(colorDiv)
