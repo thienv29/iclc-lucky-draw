@@ -489,9 +489,21 @@ app.put('/api/admin/customers/:id', (req, res) => {
     return res.status(400).json({ success: false, message: 'Name is required' })
   }
 
-  const query = 'UPDATE checkin_iclc_2026 SET name = ?, department = ?, note = ?, checked = ? WHERE id = ?'
+  // If unchecking (checked = 0), also clear checkin_at timestamp
+  const isChecked = checked === 1 ? 1 : 0
+  
+  let query
+  let params
+  
+  if (isChecked === 0) {
+    query = 'UPDATE checkin_iclc_2026 SET name = ?, department = ?, note = ?, checked = 0, checkin_at = NULL WHERE id = ?'
+    params = [name.trim(), department ? department.trim() : null, note ? note.trim() : null, id]
+  } else {
+    query = 'UPDATE checkin_iclc_2026 SET name = ?, department = ?, note = ?, checked = 1, checkin_at = CONVERT_TZ(NOW(), \'UTC\', \'Asia/Ho_Chi_Minh\') WHERE id = ?'
+    params = [name.trim(), department ? department.trim() : null, note ? note.trim() : null, id]
+  }
 
-  db.query(query, [name.trim(), department ? department.trim() : null, note ? note.trim() : null, checked || 0, id], (err, result) => {
+  db.query(query, params, (err, result) => {
     if (err) {
       console.error('Error updating customer:', err)
       return res.status(500).json({ success: false, message: 'Database error' })
