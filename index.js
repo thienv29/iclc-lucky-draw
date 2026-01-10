@@ -69,31 +69,31 @@ app.post('/checkin', (req, res) => {
       return res.status(404).json({ success: false, message: 'Customer not found' })
     }
 
-    // Update note if provided
+    // Update checked status, note if provided, and created_at timestamp
+    let updateQuery
+    let updateParams
+
     if (note && note.trim()) {
-      const updateQuery = 'UPDATE checkin_iclc_2026 SET note = ? WHERE id = ?'
-
-      db.query(updateQuery, [note, customerId], (err, updateResult) => {
-        if (err) {
-          console.error('Error updating note:', err)
-          return res.status(500).json({ success: false, message: 'Database error' })
-        }
-
-        console.log('Check-in successful for customer:', customerResults[0].name, '- Note updated')
-        res.json({
-          success: true,
-          message: 'Check-in successful!',
-          luckyNumber: customerId
-        })
-      })
+      updateQuery = 'UPDATE checkin_iclc_2026 SET checked = 1, note = ?, created_at = CONVERT_TZ(NOW(), \'UTC\', \'Asia/Ho_Chi_Minh\') WHERE id = ?'
+      updateParams = [note, customerId]
     } else {
-      console.log('Check-in successful for customer:', customerResults[0].name)
+      updateQuery = 'UPDATE checkin_iclc_2026 SET checked = 1, created_at = CONVERT_TZ(NOW(), \'UTC\', \'Asia/Ho_Chi_Minh\') WHERE id = ?'
+      updateParams = [customerId]
+    }
+
+    db.query(updateQuery, updateParams, (err, updateResult) => {
+      if (err) {
+        console.error('Error updating customer:', err)
+        return res.status(500).json({ success: false, message: 'Database error' })
+      }
+
+      console.log('Check-in successful for customer:', customerResults[0].name, note && note.trim() ? '- Note updated' : '')
       res.json({
         success: true,
         message: 'Check-in successful!',
         luckyNumber: customerId
       })
-    }
+    })
   })
 })
 
@@ -113,7 +113,7 @@ app.get('/api/checkins', (req, res) => {
 
 // API endpoint to get list of customers
 app.get('/api/customers', (req, res) => {
-  const query = 'SELECT id, name, department FROM checkin_iclc_2026 ORDER BY name ASC'
+  const query = 'SELECT id, name, department FROM checkin_iclc_2026 WHERE checked = 0 ORDER BY name ASC'
 
   db.query(query, (err, results) => {
     if (err) {
