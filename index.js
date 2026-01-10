@@ -215,6 +215,24 @@ app.get('/api/total-members', (req, res) => {
   })
 })
 
+// API endpoint to get list of checked-in IDs for lucky draw
+app.get('/api/checked-in-ids', (req, res) => {
+  const query = 'SELECT id FROM checkin_iclc_2026 WHERE checked = 1 ORDER BY id ASC'
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching checked-in IDs:', err)
+      return res.status(500).json({ success: false, message: 'Database error' })
+    }
+
+    const ids = results.map(item => item.id)
+    res.json({ 
+      totalMembers: ids.length,
+      ids: ids 
+    })
+  })
+})
+
 // API endpoint to export check-in data to Excel
 app.get('/api/export-checkins', (req, res) => {
   const query = 'SELECT id, name, department, note, checkin_at FROM checkin_iclc_2026 ORDER BY id ASC'

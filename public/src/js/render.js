@@ -50,30 +50,39 @@ function createArrayByNumber(soLuong) {
   return mang
 }
 
+// Modified to only use checked-in participants
 function reset() {
-  // Fetch total members from API
-  fetch('/api/total-members')
+  // Fetch only checked-in IDs from API
+  fetch('/api/checked-in-ids')
     .then((response) => response.json())
     .then((data) => {
-      totalMember = data.totalMembers || 0
-      member = createArrayByNumber(totalMember)
-      config.totalMember = totalMember
+      if (data.ids && data.ids.length > 0) {
+        totalMember = data.totalMembers || data.ids.length
+        member = data.ids // Use the actual IDs array directly
+        config.totalMember = totalMember
+        console.log('Member IDs fetched:', member)
 
-      // Update prize amounts
-      config.nhat = 1
-      $(`#amount-nhat`).text(config.nhat)
-      $(`#amount-nhi`).text(config.nhi)
-      $(`#amount-ba`).text(config.ba)
-      $(`#amount-khuyenkhich`).text(config.khuyenkhich)
+        // Update prize amounts
+        config.nhat = 1
+        $(`#amount-nhat`).text(config.nhat)
+        $(`#amount-nhi`).text(config.nhi)
+        $(`#amount-ba`).text(config.ba)
+        $(`#amount-khuyenkhich`).text(config.khuyenkhich)
 
-      console.log('Total members loaded:', totalMember)
+        console.log('Checked-in members loaded:', totalMember)
+      } else {
+        console.log('No checked-in participants found')
+        totalMember = 0
+        member = []
+        config.totalMember = 0
+      }
     })
     .catch((error) => {
-      console.error('Error loading total members:', error)
-      // Don't proceed with lucky draw if we can't get total members
-      totalMember = 150
+      console.error('Error loading checked-in IDs:', error)
+      // Don't proceed with lucky draw if we can't get data
+      totalMember = 0
       member = []
-      config.totalMember = totalMember
+      config.totalMember = 0
       console.log('Cannot proceed with lucky draw - database connection failed')
     })
 }
