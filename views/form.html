@@ -10,6 +10,8 @@
       body {
         background: linear-gradient(135deg, #f3e8ff, #fef7ff);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        height: 100vh;
+        overflow: hidden;
       }
 
       .card {
@@ -18,7 +20,7 @@
         box-shadow: 0 10px 30px rgba(102, 40, 114, 0.1);
         overflow: hidden;
         animation: fadeInUp 0.6s ease;
-      } 
+      }
 
       .card-header {
         background: linear-gradient(135deg, #662872, #8b5cf6);
@@ -52,6 +54,41 @@
       .form-control:focus {
         border-color: #662872;
         box-shadow: 0 0 0 0.15rem rgba(102, 40, 114, 0.25);
+      }
+
+      .dropdown-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ced4da;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(102, 40, 114, 0.2);
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+      }
+
+      .dropdown-item {
+        padding: 12px 14px;
+        cursor: pointer;
+        border-bottom: 1px solid #f8f9fa;
+        transition: background-color 0.2s ease;
+      }
+
+      .dropdown-item:hover,
+      .dropdown-item.active {
+        background-color: rgba(102, 40, 114, 1);
+      }
+
+      .dropdown-item:last-child {
+        border-bottom: none;
+      }
+
+      .input-wrapper {
+        position: relative;
       }
 
       textarea.form-control {
@@ -109,17 +146,18 @@
               <form id="inputForm">
                 <div class="form-group">
                   <label for="customer">You are </label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="customerSearch"
-                    placeholder="Search your name..."
-                    autocomplete="off"
-                    list="customersList"
-                    required
-                  />
-                  <input type="hidden" id="customerId" name="customerId" />
-                  <datalist id="customersList"></datalist>
+                  <div class="input-wrapper">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="customerSearch"
+                      placeholder="Search your name..."
+                      autocomplete="off"
+                      required
+                    />
+                    <input type="hidden" id="customerId" name="customerId" />
+                    <div class="dropdown-list" id="customersDropdown"></div>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label for="note">Note</label>
@@ -238,6 +276,7 @@
     <script src="./assets/lib/js/bootstrap.min.js"></script>
     <script>
       let customers = []
+      let selectedIndex = -1
 
       // Load customers on page load
       document.addEventListener('DOMContentLoaded', function () {
@@ -245,41 +284,7 @@
           .then((response) => response.json())
           .then((data) => {
             customers = data
-            const datalist = document.getElementById('customersList')
-
-            customers.forEach((customer) => {
-              const option = document.createElement('option')
-              option.value = `${customer.name} - ${customer.department}`
-              option.setAttribute('data-id', customer.id)
-              datalist.appendChild(option)
-            })
-
-            // Set up input event listener
-            const searchInput = document.getElementById('customerSearch')
-            searchInput.addEventListener('input', function () {
-              const selectedText = this.value
-              const selectedCustomer = customers.find(
-                (c) => `${c.name} - ${c.department}` === selectedText
-              )
-              if (selectedCustomer) {
-                document.getElementById('customerId').value =
-                  selectedCustomer.id
-              } else {
-                document.getElementById('customerId').value = ''
-              }
-            })
-
-            searchInput.addEventListener('change', function () {
-              const selectedText = this.value
-              const selectedCustomer = customers.find(
-                (c) => `${c.name} - ${c.department}` === selectedText
-              )
-              if (!selectedCustomer) {
-                // Clear if invalid selection
-                this.value = ''
-                document.getElementById('customerId').value = ''
-              }
-            })
+            setupDropdown()
           })
           .catch((error) => {
             console.error('Error loading customers:', error)
@@ -288,6 +293,127 @@
             searchInput.disabled = true
           })
       })
+
+      function setupDropdown() {
+        const searchInput = document.getElementById('customerSearch')
+        const dropdown = document.getElementById('customersDropdown')
+
+        // Show dropdown on focus/click
+        searchInput.addEventListener('focus', function () {
+          showDropdown('')
+        })
+
+        searchInput.addEventListener('click', function () {
+          showDropdown('')
+        })
+
+        // Filter dropdown on input
+        searchInput.addEventListener('input', function () {
+          const searchTerm = this.value.toLowerCase()
+          showDropdown(searchTerm)
+        })
+
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+          if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+            hideDropdown()
+          }
+        })
+
+        // Handle keyboard navigation
+        searchInput.addEventListener('keydown', function (e) {
+          const items = dropdown.querySelectorAll('.dropdown-item')
+
+          if (e.key === 'ArrowDown') {
+            e.preventDefault()
+            selectedIndex = Math.min(selectedIndex + 1, items.length - 1)
+            updateSelection(items)
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault()
+            selectedIndex = Math.max(selectedIndex - 1, -1)
+            updateSelection(items)
+          } else if (e.key === 'Enter') {
+            e.preventDefault()
+            if (selectedIndex >= 0 && items[selectedIndex]) {
+              selectCustomer(items[selectedIndex])
+            }
+          } else if (e.key === 'Escape') {
+            hideDropdown()
+          }
+        })
+      }
+
+      function showDropdown(searchTerm) {
+        const dropdown = document.getElementById('customersDropdown')
+        dropdown.innerHTML = ''
+
+        const filteredCustomers = customers.filter(
+          (customer) =>
+            !searchTerm ||
+            customer.name.toLowerCase().includes(searchTerm) ||
+            (customer.department &&
+              customer.department.toLowerCase().includes(searchTerm))
+        )
+
+        if (filteredCustomers.length === 0) {
+          const noResult = document.createElement('div')
+          noResult.className = 'dropdown-item'
+          noResult.textContent = 'No customers found'
+          noResult.style.color = '#6c757d'
+          noResult.style.cursor = 'default'
+          dropdown.appendChild(noResult)
+        } else {
+          filteredCustomers.forEach((customer, index) => {
+            const item = document.createElement('div')
+            item.className = 'dropdown-item'
+            item.textContent = `${customer.name} - ${
+              customer.department || 'No Department'
+            }`
+            item.setAttribute('data-id', customer.id)
+            item.setAttribute('data-index', index)
+
+            item.addEventListener('click', function () {
+              selectCustomer(this)
+            })
+
+            item.addEventListener('mouseenter', function () {
+              selectedIndex = parseInt(this.getAttribute('data-index'))
+              updateSelection(dropdown.querySelectorAll('.dropdown-item'))
+            })
+
+            dropdown.appendChild(item)
+          })
+        }
+
+        dropdown.style.display = 'block'
+        selectedIndex = -1
+      }
+
+      function hideDropdown() {
+        const dropdown = document.getElementById('customersDropdown')
+        dropdown.style.display = 'none'
+        selectedIndex = -1
+      }
+
+      function updateSelection(items) {
+        items.forEach((item, index) => {
+          if (index === selectedIndex) {
+            item.classList.add('active')
+          } else {
+            item.classList.remove('active')
+          }
+        })
+      }
+
+      function selectCustomer(item) {
+        const customerId = item.getAttribute('data-id')
+        const customerName = item.textContent
+
+        document.getElementById('customerSearch').value = customerName
+        document.getElementById('customerId').value = customerId
+
+        hideDropdown()
+      }
 
       document
         .getElementById('inputForm')
