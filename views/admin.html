@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel - ICLC Lucky Draw</title>
+    <link rel="stylesheet" href="./assets/lib/css/bootstrap.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+
+    <style>
+      body {
+        background: linear-gradient(135deg, #f3e8ff, #fef7ff);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(102, 40, 114, 0.1);
+        overflow: hidden;
+        animation: fadeInUp 0.6s ease;
+      }
+
+      .card-header {
+        background: linear-gradient(135deg, #662872, #8b5cf6);
+        text-align: center;
+        padding: 20px;
+        color: white;
+      }
+
+      .card-header h4 {
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin: 0;
+      }
+
+      .btn-admin {
+        background: linear-gradient(135deg, #662872, #8b5cf6);
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        margin: 2px;
+      }
+
+      .btn-admin:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 40, 114, 0.3);
+        color: white;
+      }
+
+      .btn-danger-admin {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        margin: 2px;
+      }
+
+      .btn-danger-admin:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        color: white;
+      }
+
+      .table {
+        margin-bottom: 0;
+      }
+
+      .table th {
+        background-color: #662872;
+        color: white;
+        border: none;
+        font-weight: 600;
+        padding: 12px;
+      }
+
+      .table td {
+        border-top: 1px solid #dee2e6;
+        vertical-align: middle;
+        padding: 12px;
+      }
+
+      .status-checked {
+        color: #28a745;
+        font-weight: bold;
+      }
+
+      .status-unchecked {
+        color: #6c757d;
+      }
+
+      .modal-content {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(102, 40, 114, 0.3);
+      }
+
+      .form-control {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        padding: 10px 12px;
+      }
+
+      .form-control:focus {
+        border-color: #662872;
+        box-shadow: 0 0 0 0.15rem rgba(102, 40, 114, 0.25);
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .stats-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(102, 40, 114, 0.1);
+      }
+
+      .stats-number {
+        font-size: 2em;
+        font-weight: bold;
+        color: #662872;
+      }
+
+      .stats-label {
+        color: #666;
+        font-size: 0.9em;
+      }
+
+      .search-box {
+        margin-bottom: 20px;
+      }
+
+      .action-buttons {
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid py-4">
+      <div class="row justify-content-center">
+        <div class="col-12 col-lg-11 col-xl-10">
+          <!-- Header -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                  <i class="fas fa-cog"></i> Admin Panel - ICLC Lucky Draw 2026
+                </h4>
+                <button class="btn btn-outline-light btn-sm" onclick="logout()" title="Logout">
+                  <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="stats-card text-center">
+                    <div class="stats-number" id="totalCustomers">0</div>
+                    <div class="stats-label">Total Customers</div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="stats-card text-center">
+                    <div class="stats-number" id="checkedIn">0</div>
+                    <div class="stats-label">Checked In</div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="stats-card text-center">
+                    <div class="stats-number" id="notCheckedIn">0</div>
+                    <div class="stats-label">Not Checked In</div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="stats-card text-center">
+                    <button
+                      class="btn btn-admin btn-block"
+                      onclick="loadData()"
+                    >
+                      <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <button
+                    class="btn btn-admin"
+                    onclick="showAddCustomerModal()"
+                  >
+                    <i class="fas fa-plus"></i> Add Customer
+                  </button>
+                  <button class="btn btn-admin" onclick="exportToExcel()">
+                    <i class="fas fa-download"></i> Export Excel
+                  </button>
+                  <button class="btn btn-admin" onclick="showImportModal()">
+                    <i class="fas fa-upload"></i> Import Excel
+                  </button>
+                  <a href="/checkin-list" class="btn btn-admin" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> View Check-in List
+                  </a>
+                </div>
+                <div class="col-md-6">
+                  <div class="search-box">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="searchInput"
+                      placeholder="Search by name or department..."
+                      onkeyup="filterTable()"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Customers Table -->
+          <div class="card">
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover" id="customersTable">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Department</th>
+                      <th>Note</th>
+                      <th>Status</th>
+                      <th>Check-in Time</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="customersTableBody">
+                    <tr>
+                      <td colspan="7" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                          <span class="sr-only">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading customers...</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add/Edit Customer Modal -->
+    <div class="modal fade" id="customerModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="customerModalTitle">Add Customer</h5>
+            <button type="button" class="close" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="customerForm">
+              <input type="hidden" id="customerId" />
+              <div class="form-group">
+                <label for="customerName">Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="customerName"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="customerDepartment">Department</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="customerDepartment"
+                />
+              </div>
+              <div class="form-group">
+                <label for="customerNote">Note</label>
+                <textarea
+                  class="form-control"
+                  id="customerNote"
+                  rows="3"
+                ></textarea>
+              </div>
+              <div class="form-group">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="customerChecked"
+                  />
+                  <label class="form-check-label" for="customerChecked">
+                    Checked In
+                  </label>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-admin"
+              onclick="saveCustomer()"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import Excel Modal -->
+    <div class="modal fade" id="importModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Import Customers from Excel</h5>
+            <button type="button" class="close" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i>
+              <strong>Excel Format Requirements:</strong>
+              <ul class="mb-0 mt-2">
+                <li>First row should be headers: <code>lucky_number, name, department</code></li>
+                <li>Data starts from row 2</li>
+                <li>Only these 3 columns are required</li>
+                <li>Duplicate lucky_numbers will be skipped</li>
+              </ul>
+            </div>
+
+            <form id="importForm" enctype="multipart/form-data">
+              <div class="form-group">
+                <label for="excelFile">Select Excel File</label>
+                <input
+                  type="file"
+                  class="form-control-file"
+                  id="excelFile"
+                  accept=".xlsx,.xls"
+                  required
+                />
+                <small class="form-text text-muted">
+                  Supported formats: .xlsx, .xls
+                </small>
+              </div>
+            </form>
+
+            <div id="importProgress" style="display: none;">
+              <div class="progress mb-3">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+              </div>
+              <div id="importStatus">Processing...</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-admin"
+              onclick="importExcel()"
+              id="importBtn"
+            >
+              <i class="fas fa-upload"></i> Import
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./assets/lib/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="./assets/lib/js/popper.min.js"></script>
+    <script src="./assets/lib/js/bootstrap.min.js"></script>
+    <script>
+      let allCustomers = []
+      let authToken = null
+
+      // Check authentication on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        authToken = localStorage.getItem('adminToken')
+        const loginTime = localStorage.getItem('adminLoginTime')
+
+        if (!authToken || !loginTime) {
+          redirectToLogin()
+          return
+        }
+
+        // Check if session is still valid (24 hours)
+        const hoursSinceLogin = (Date.now() - parseInt(loginTime)) / (1000 * 60 * 60)
+        if (hoursSinceLogin >= 24) {
+          localStorage.removeItem('adminToken')
+          localStorage.removeItem('adminLoginTime')
+          redirectToLogin()
+          return
+        }
+
+        loadData()
+      })
+
+      function redirectToLogin() {
+        window.location.href = '/admin/login'
+      }
+
+      function authenticatedFetch(url, options = {}) {
+        if (!authToken) {
+          redirectToLogin()
+          return Promise.reject(new Error('Not authenticated'))
+        }
+
+        const headers = {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+          ...options.headers
+        }
+
+        return fetch(url, { ...options, headers })
+          .then(response => {
+            if (response.status === 401) {
+              // Token expired or invalid
+              localStorage.removeItem('adminToken')
+              localStorage.removeItem('adminLoginTime')
+              redirectToLogin()
+              throw new Error('Authentication failed')
+            }
+            return response
+          })
+      }
+
+      function loadData() {
+        // Show loading
+        document.getElementById('customersTableBody').innerHTML = `
+          <tr>
+            <td colspan="7" class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+              </div>
+              <p class="mt-2">Loading customers...</p>
+            </td>
+          </tr>
+        `
+
+        authenticatedFetch('/api/admin/customers')
+          .then(response => response.json())
+          .then(data => {
+            allCustomers = data
+            updateStats()
+            renderTable(data)
+          })
+          .catch(error => {
+            console.error('Error loading data:', error)
+            if (error.message !== 'Not authenticated') {
+              document.getElementById('customersTableBody').innerHTML = `
+                <tr>
+                  <td colspan="7" class="text-center py-4 text-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p class="mt-2">Error loading customers. Please try again.</p>
+                    <button class="btn btn-admin" onclick="loadData()">Retry</button>
+                  </td>
+                </tr>
+              `
+            }
+          })
+      }
+
+      function updateStats() {
+        const total = allCustomers.length
+        const checkedIn = allCustomers.filter((c) => c.checked === 1).length
+        const notCheckedIn = total - checkedIn
+
+        document.getElementById('totalCustomers').textContent = total
+        document.getElementById('checkedIn').textContent = checkedIn
+        document.getElementById('notCheckedIn').textContent = notCheckedIn
+      }
+
+      function renderTable(customers) {
+        const tbody = document.getElementById('customersTableBody')
+        tbody.innerHTML = ''
+
+        if (customers.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" class="text-center py-4 text-muted">
+                <i class="fas fa-users"></i>
+                <p class="mt-2">No customers found.</p>
+              </td>
+            </tr>
+          `
+          return
+        }
+
+        customers.forEach((customer) => {
+          const checkinTime = customer.created_at
+            ? new Date(customer.created_at).toLocaleString('vi-VN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+              })
+            : '-'
+
+          const statusHtml =
+            customer.checked === 1
+              ? '<span class="status-checked"><i class="fas fa-check-circle"></i> Checked In</span>'
+              : '<span class="status-unchecked"><i class="fas fa-clock"></i> Not Checked</span>'
+
+          const row = document.createElement('tr')
+          row.innerHTML = `
+            <td><strong>${customer.id}</strong></td>
+            <td>${customer.name}</td>
+            <td>${customer.department || '-'}</td>
+            <td>${customer.note || '-'}</td>
+            <td>${statusHtml}</td>
+            <td>${checkinTime}</td>
+            <td class="action-buttons">
+              <button class="btn btn-sm btn-admin" onclick="editCustomer(${
+                customer.id
+              })" title="Edit">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-danger-admin" onclick="resetCheckin(${
+                customer.id
+              })" title="Reset Check-in">
+                <i class="fas fa-undo"></i>
+              </button>
+              <button class="btn btn-sm btn-danger-admin" onclick="deleteCustomer(${
+                customer.id
+              })" title="Delete">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          `
+          tbody.appendChild(row)
+        })
+      }
+
+      function filterTable() {
+        const searchTerm = document
+          .getElementById('searchInput')
+          .value.toLowerCase()
+        const filtered = allCustomers.filter(
+          (customer) =>
+            customer.name.toLowerCase().includes(searchTerm) ||
+            (customer.department &&
+              customer.department.toLowerCase().includes(searchTerm))
+        )
+        renderTable(filtered)
+      }
+
+      function showAddCustomerModal() {
+        document.getElementById('customerModalTitle').textContent =
+          'Add Customer'
+        document.getElementById('customerForm').reset()
+        document.getElementById('customerId').value = ''
+        $('#customerModal').modal('show')
+      }
+
+      function editCustomer(id) {
+        const customer = allCustomers.find((c) => c.id === id)
+        if (!customer) return
+
+        document.getElementById('customerModalTitle').textContent =
+          'Edit Customer'
+        document.getElementById('customerId').value = customer.id
+        document.getElementById('customerName').value = customer.name
+        document.getElementById('customerDepartment').value =
+          customer.department || ''
+        document.getElementById('customerNote').value = customer.note || ''
+        document.getElementById('customerChecked').checked =
+          customer.checked === 1
+        $('#customerModal').modal('show')
+      }
+
+      function saveCustomer() {
+        const id = document.getElementById('customerId').value
+        const name = document.getElementById('customerName').value.trim()
+        const department = document
+          .getElementById('customerDepartment')
+          .value.trim()
+        const note = document.getElementById('customerNote').value.trim()
+        const checked = document.getElementById('customerChecked').checked
+          ? 1
+          : 0
+
+        if (!name) {
+          alert('Please enter a name.')
+          return
+        }
+
+        const customerData = { name, department, note, checked }
+
+        const url = id ? `/api/admin/customers/${id}` : '/api/admin/customers'
+        const method = id ? 'PUT' : 'POST'
+
+        authenticatedFetch(url, {
+          method: method,
+          body: JSON.stringify(customerData),
+        })
+          .then((response) => response.json())
+          .then((result) => {
+            if (result.success) {
+              $('#customerModal').modal('hide')
+              loadData()
+            } else {
+              alert('Error: ' + result.message)
+            }
+          })
+          .catch((error) => {
+            console.error('Error saving customer:', error)
+            if (error.message !== 'Not authenticated') {
+              alert('An error occurred while saving.')
+            }
+          })
+      }
+
+      function resetCheckin(id) {
+        if (
+          !confirm(
+            "Are you sure you want to reset this customer's check-in status?"
+          )
+        )
+          return
+
+        authenticatedFetch(`/api/admin/customers/${id}/reset`, { method: 'PUT' })
+          .then((response) => response.json())
+          .then((result) => {
+            if (result.success) {
+              loadData()
+            } else {
+              alert('Error: ' + result.message)
+            }
+          })
+          .catch((error) => {
+            console.error('Error resetting check-in:', error)
+            if (error.message !== 'Not authenticated') {
+              alert('An error occurred.')
+            }
+          })
+      }
+
+      function deleteCustomer(id) {
+        if (
+          !confirm(
+            'Are you sure you want to delete this customer? This action cannot be undone.'
+          )
+        )
+          return
+
+        authenticatedFetch(`/api/admin/customers/${id}`, { method: 'DELETE' })
+          .then((response) => response.json())
+          .then((result) => {
+            if (result.success) {
+              loadData()
+            } else {
+              alert('Error: ' + result.message)
+            }
+          })
+          .catch((error) => {
+            console.error('Error deleting customer:', error)
+            if (error.message !== 'Not authenticated') {
+              alert('An error occurred.')
+            }
+          })
+      }
+
+      function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+          // Clear authentication tokens
+          localStorage.removeItem('adminToken')
+          localStorage.removeItem('adminLoginTime')
+
+          // Redirect to login page
+          window.location.href = '/admin/login'
+        }
+      }
+
+      function showImportModal() {
+        document.getElementById('importForm').reset()
+        document.getElementById('importProgress').style.display = 'none'
+        document.getElementById('importBtn').disabled = false
+        document.getElementById('importBtn').innerHTML = '<i class="fas fa-upload"></i> Import'
+        $('#importModal').modal('show')
+      }
+
+      function importExcel() {
+        const fileInput = document.getElementById('excelFile')
+        const file = fileInput.files[0]
+
+        if (!file) {
+          alert('Please select an Excel file.')
+          return
+        }
+
+        // Check file extension
+        const allowedExtensions = ['.xlsx', '.xls']
+        const fileName = file.name.toLowerCase()
+        const isValidFile = allowedExtensions.some(ext => fileName.endsWith(ext))
+
+        if (!isValidFile) {
+          alert('Please select a valid Excel file (.xlsx or .xls).')
+          return
+        }
+
+        // Show progress
+        document.getElementById('importProgress').style.display = 'block'
+        document.getElementById('importStatus').textContent = 'Reading Excel file...'
+        document.getElementById('importBtn').disabled = true
+        document.getElementById('importBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...'
+
+        const formData = new FormData()
+        formData.append('excelFile', file)
+
+        // Update progress
+        const progressBar = document.querySelector('.progress-bar')
+        progressBar.style.width = '25%'
+        document.getElementById('importStatus').textContent = 'Uploading file...'
+
+        authenticatedFetch('/api/admin/import-customers', {
+          method: 'POST',
+          body: formData,
+          headers: {} // Let browser set Content-Type for FormData
+        })
+        .then(response => response.json())
+        .then(result => {
+          progressBar.style.width = '100%'
+          document.getElementById('importStatus').textContent = result.message || 'Import completed!'
+
+          if (result.success) {
+            setTimeout(() => {
+              $('#importModal').modal('hide')
+              loadData()
+            }, 1500)
+          } else {
+            document.getElementById('importBtn').disabled = false
+            document.getElementById('importBtn').innerHTML = '<i class="fas fa-upload"></i> Import'
+          }
+        })
+        .catch(error => {
+          console.error('Import error:', error)
+          document.getElementById('importStatus').textContent = 'Import failed. Please try again.'
+          document.getElementById('importBtn').disabled = false
+          document.getElementById('importBtn').innerHTML = '<i class="fas fa-upload"></i> Import'
+          progressBar.style.width = '0%'
+        })
+      }
+
+      function exportToExcel() {
+        // Create a temporary link to download the file
+        const link = document.createElement('a')
+        link.href = '/api/export-checkins'
+        link.download = ''
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
+    </script>
+  </body>
+</html>
