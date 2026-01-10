@@ -165,7 +165,11 @@
                 <h4 class="mb-0">
                   <i class="fas fa-cog"></i> Admin Panel - ICLC Lucky Draw 2026
                 </h4>
-                <button class="btn btn-outline-light btn-sm" onclick="logout()" title="Logout">
+                <button
+                  class="btn btn-outline-light btn-sm"
+                  onclick="logout()"
+                  title="Logout"
+                >
                   <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
               </div>
@@ -247,9 +251,9 @@
                 <table class="table table-hover" id="customersTable">
                   <thead>
                     <tr>
-                      <th>ID</th>
+                      <th>Lucky Number</th>
                       <th>Name</th>
-                      <th>Department</th>
+                      <th>Department/Guest</th>
                       <th>Note</th>
                       <th>Status</th>
                       <th>Check-in Time</th>
@@ -361,7 +365,10 @@
               <i class="fas fa-info-circle"></i>
               <strong>Excel Format Requirements:</strong>
               <ul class="mb-0 mt-2">
-                <li>First row should be headers: <code>lucky_number, name, department</code></li>
+                <li>
+                  First row should be headers:
+                  <code>lucky_number, name, department</code>
+                </li>
                 <li>Data starts from row 2</li>
                 <li>Only these 3 columns are required</li>
                 <li>Duplicate lucky_numbers will be skipped</li>
@@ -384,9 +391,13 @@
               </div>
             </form>
 
-            <div id="importProgress" style="display: none;">
+            <div id="importProgress" style="display: none">
               <div class="progress mb-3">
-                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                <div
+                  class="progress-bar progress-bar-striped progress-bar-animated"
+                  role="progressbar"
+                  style="width: 0%"
+                ></div>
               </div>
               <div id="importStatus">Processing...</div>
             </div>
@@ -420,7 +431,7 @@
       let authToken = null
 
       // Check authentication on page load
-      document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener('DOMContentLoaded', function () {
         authToken = localStorage.getItem('adminToken')
         const loginTime = localStorage.getItem('adminLoginTime')
 
@@ -430,7 +441,8 @@
         }
 
         // Check if session is still valid (24 hours)
-        const hoursSinceLogin = (Date.now() - parseInt(loginTime)) / (1000 * 60 * 60)
+        const hoursSinceLogin =
+          (Date.now() - parseInt(loginTime)) / (1000 * 60 * 60)
         if (hoursSinceLogin >= 24) {
           localStorage.removeItem('adminToken')
           localStorage.removeItem('adminLoginTime')
@@ -452,22 +464,21 @@
         }
 
         const headers = {
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
           'Content-Type': 'application/json',
-          ...options.headers
+          ...options.headers,
         }
 
-        return fetch(url, { ...options, headers })
-          .then(response => {
-            if (response.status === 401) {
-              // Token expired or invalid
-              localStorage.removeItem('adminToken')
-              localStorage.removeItem('adminLoginTime')
-              redirectToLogin()
-              throw new Error('Authentication failed')
-            }
-            return response
-          })
+        return fetch(url, { ...options, headers }).then((response) => {
+          if (response.status === 401) {
+            // Token expired or invalid
+            localStorage.removeItem('adminToken')
+            localStorage.removeItem('adminLoginTime')
+            redirectToLogin()
+            throw new Error('Authentication failed')
+          }
+          return response
+        })
       }
 
       function loadData() {
@@ -484,13 +495,13 @@
         `
 
         authenticatedFetch('/api/admin/customers')
-          .then(response => response.json())
-          .then(data => {
+          .then((response) => response.json())
+          .then((data) => {
             allCustomers = data
             updateStats()
             renderTable(data)
           })
-          .catch(error => {
+          .catch((error) => {
             console.error('Error loading data:', error)
             if (error.message !== 'Not authenticated') {
               document.getElementById('customersTableBody').innerHTML = `
@@ -551,7 +562,7 @@
 
           const row = document.createElement('tr')
           row.innerHTML = `
-            <td><strong>${customer.id}</strong></td>
+            <td><strong>#${customer.id}</strong></td>
             <td>${customer.name}</td>
             <td>${customer.department || '-'}</td>
             <td>${customer.note || '-'}</td>
@@ -666,7 +677,9 @@
         )
           return
 
-        authenticatedFetch(`/api/admin/customers/${id}/reset`, { method: 'PUT' })
+        authenticatedFetch(`/api/admin/customers/${id}/reset`, {
+          method: 'PUT',
+        })
           .then((response) => response.json())
           .then((result) => {
             if (result.success) {
@@ -723,7 +736,8 @@
         document.getElementById('importForm').reset()
         document.getElementById('importProgress').style.display = 'none'
         document.getElementById('importBtn').disabled = false
-        document.getElementById('importBtn').innerHTML = '<i class="fas fa-upload"></i> Import'
+        document.getElementById('importBtn').innerHTML =
+          '<i class="fas fa-upload"></i> Import'
         $('#importModal').modal('show')
       }
 
@@ -739,7 +753,9 @@
         // Check file extension
         const allowedExtensions = ['.xlsx', '.xls']
         const fileName = file.name.toLowerCase()
-        const isValidFile = allowedExtensions.some(ext => fileName.endsWith(ext))
+        const isValidFile = allowedExtensions.some((ext) =>
+          fileName.endsWith(ext)
+        )
 
         if (!isValidFile) {
           alert('Please select a valid Excel file (.xlsx or .xls).')
@@ -748,9 +764,11 @@
 
         // Show progress
         document.getElementById('importProgress').style.display = 'block'
-        document.getElementById('importStatus').textContent = 'Reading Excel file...'
+        document.getElementById('importStatus').textContent =
+          'Reading Excel file...'
         document.getElementById('importBtn').disabled = true
-        document.getElementById('importBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...'
+        document.getElementById('importBtn').innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Importing...'
 
         const formData = new FormData()
         formData.append('excelFile', file)
@@ -758,35 +776,40 @@
         // Update progress
         const progressBar = document.querySelector('.progress-bar')
         progressBar.style.width = '25%'
-        document.getElementById('importStatus').textContent = 'Uploading file...'
+        document.getElementById('importStatus').textContent =
+          'Uploading file...'
 
         authenticatedFetch('/api/admin/import-customers', {
           method: 'POST',
           body: formData,
-          headers: {} // Let browser set Content-Type for FormData
+          headers: {}, // Let browser set Content-Type for FormData
         })
-        .then(response => response.json())
-        .then(result => {
-          progressBar.style.width = '100%'
-          document.getElementById('importStatus').textContent = result.message || 'Import completed!'
+          .then((response) => response.json())
+          .then((result) => {
+            progressBar.style.width = '100%'
+            document.getElementById('importStatus').textContent =
+              result.message || 'Import completed!'
 
-          if (result.success) {
-            setTimeout(() => {
-              $('#importModal').modal('hide')
-              loadData()
-            }, 1500)
-          } else {
+            if (result.success) {
+              setTimeout(() => {
+                $('#importModal').modal('hide')
+                loadData()
+              }, 1500)
+            } else {
+              document.getElementById('importBtn').disabled = false
+              document.getElementById('importBtn').innerHTML =
+                '<i class="fas fa-upload"></i> Import'
+            }
+          })
+          .catch((error) => {
+            console.error('Import error:', error)
+            document.getElementById('importStatus').textContent =
+              'Import failed. Please try again.'
             document.getElementById('importBtn').disabled = false
-            document.getElementById('importBtn').innerHTML = '<i class="fas fa-upload"></i> Import'
-          }
-        })
-        .catch(error => {
-          console.error('Import error:', error)
-          document.getElementById('importStatus').textContent = 'Import failed. Please try again.'
-          document.getElementById('importBtn').disabled = false
-          document.getElementById('importBtn').innerHTML = '<i class="fas fa-upload"></i> Import'
-          progressBar.style.width = '0%'
-        })
+            document.getElementById('importBtn').innerHTML =
+              '<i class="fas fa-upload"></i> Import'
+            progressBar.style.width = '0%'
+          })
       }
 
       function exportToExcel() {
