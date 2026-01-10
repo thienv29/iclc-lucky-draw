@@ -19,4 +19,5 @@ EXPOSE 3111
 # Command to start the server
 CMD ["node", "index.js"]
 
-# docker buildx build --platform linux/amd64,linux/arm64 -t thienv29/iclc-luckydraw-server:latest --push --no-cache .
+# docker build --platform linux/amd64 -t hoaiphongpvt/iclc-lucky-draw:v4 .
+# docker push hoaiphongpvt/iclc-lucky-draw:v1    
