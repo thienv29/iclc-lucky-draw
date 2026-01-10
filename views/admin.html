@@ -533,8 +533,8 @@
         }
 
         customers.forEach((customer) => {
-          const checkinTime = customer.created_at
-            ? new Date(customer.created_at).toLocaleString('vi-VN', {
+          const checkinTime = customer.checkin_at
+            ? new Date(customer.checkin_at).toLocaleString('vi-VN', {
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit',

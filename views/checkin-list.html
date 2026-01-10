@@ -204,15 +204,18 @@
               const row = document.createElement('tr')
 
               // Format date
-              const checkinDate = new Date(item.created_at)
-              const formattedDate = checkinDate.toLocaleString('vi-VN', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-              })
+              let formattedDate = '-'
+              if (item.checkin_at) {
+                const checkinDate = new Date(item.checkin_at)
+                formattedDate = checkinDate.toLocaleString('vi-VN', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit',
+                })
+              }
 
               row.innerHTML = `
                             <td><span class="lucky-number">#${
