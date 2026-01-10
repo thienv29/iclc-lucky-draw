@@ -108,23 +108,18 @@
             <div class="card-body">
               <form id="inputForm">
                 <div class="form-group">
-                  <label for="name">Your Fullname</label>
+                  <label for="customer">You are </label>
                   <input
                     type="text"
                     class="form-control"
-                    id="name"
-                    name="name"
+                    id="customerSearch"
+                    placeholder="Search your name..."
+                    autocomplete="off"
+                    list="customersList"
                     required
                   />
-                </div>
-                <div class="form-group">
-                  <label for="department">Department</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="department"
-                    name="department"
-                  />
+                  <input type="hidden" id="customerId" name="customerId" />
+                  <datalist id="customersList"></datalist>
                 </div>
                 <div class="form-group">
                   <label for="note">Note</label>
@@ -242,15 +237,74 @@
     <script src="./assets/lib/js/popper.min.js"></script>
     <script src="./assets/lib/js/bootstrap.min.js"></script>
     <script>
+      let customers = []
+
+      // Load customers on page load
+      document.addEventListener('DOMContentLoaded', function () {
+        fetch('/api/customers')
+          .then((response) => response.json())
+          .then((data) => {
+            customers = data
+            const datalist = document.getElementById('customersList')
+
+            customers.forEach((customer) => {
+              const option = document.createElement('option')
+              option.value = `${customer.name} - ${customer.department}`
+              option.setAttribute('data-id', customer.id)
+              datalist.appendChild(option)
+            })
+
+            // Set up input event listener
+            const searchInput = document.getElementById('customerSearch')
+            searchInput.addEventListener('input', function () {
+              const selectedText = this.value
+              const selectedCustomer = customers.find(
+                (c) => `${c.name} - ${c.department}` === selectedText
+              )
+              if (selectedCustomer) {
+                document.getElementById('customerId').value =
+                  selectedCustomer.id
+              } else {
+                document.getElementById('customerId').value = ''
+              }
+            })
+
+            searchInput.addEventListener('change', function () {
+              const selectedText = this.value
+              const selectedCustomer = customers.find(
+                (c) => `${c.name} - ${c.department}` === selectedText
+              )
+              if (!selectedCustomer) {
+                // Clear if invalid selection
+                this.value = ''
+                document.getElementById('customerId').value = ''
+              }
+            })
+          })
+          .catch((error) => {
+            console.error('Error loading customers:', error)
+            const searchInput = document.getElementById('customerSearch')
+            searchInput.placeholder = 'Error loading customers'
+            searchInput.disabled = true
+          })
+      })
+
       document
         .getElementById('inputForm')
         .addEventListener('submit', function (event) {
           event.preventDefault()
-          const formData = new FormData(this)
+
+          const customerId = document.getElementById('customerId').value
+          const note = document.getElementById('note').value
+
+          if (!customerId) {
+            alert('Please select a valid customer from the list.')
+            return
+          }
+
           const data = {
-            name: formData.get('name'),
-            department: formData.get('department'),
-            note: formData.get('note'),
+            customerId: customerId,
+            note: note,
           }
 
           // Send data to server
@@ -272,6 +326,7 @@
                 // Reset form when modal is closed
                 $('#successModal').on('hidden.bs.modal', function () {
                   document.getElementById('inputForm').reset()
+                  document.getElementById('customerId').value = ''
                 })
               } else {
                 alert('Error: ' + result.message)
