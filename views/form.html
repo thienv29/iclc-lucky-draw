@@ -32,7 +32,7 @@
       }
 
       .card-body {
-        padding: 30px;
+        padding: 25px;
         background-color: #ffffff;
       }
 
@@ -413,6 +413,43 @@
         hideDropdown()
       }
 
+      // Check if device has already checked in
+      document.addEventListener('DOMContentLoaded', function () {
+        // Check if this device has already checked in today
+        const lastCheckinDate = localStorage.getItem('iclc_checkin_date')
+        const today = new Date().toDateString()
+
+        if (lastCheckinDate === today) {
+          // Device has already checked in today, disable the form
+          disableFormForDevice()
+        }
+      })
+
+      function disableFormForDevice() {
+        const form = document.getElementById('inputForm')
+        const inputs = form.querySelectorAll('input, textarea, button')
+        const warningDiv = document.createElement('div')
+
+        warningDiv.className = 'alert alert-warning text-center mb-3'
+        warningDiv.innerHTML = `
+          <i class="fas fa-exclamation-triangle"></i>
+          <strong style="font-size: 0.9em;">
+You have already checked in!</strong><br>
+        `
+
+        // Insert warning at the top of the card body
+        const cardBody = document.querySelector('.card-body')
+        cardBody.insertBefore(warningDiv, cardBody.firstChild)
+
+        // Disable all form inputs
+        inputs.forEach((input) => {
+          input.disabled = true
+        })
+
+        // Hide the dropdown
+        document.getElementById('customersDropdown').style.display = 'none'
+      }
+
       document
         .getElementById('inputForm')
         .addEventListener('submit', function (event) {
@@ -442,6 +479,10 @@
             .then((response) => response.json())
             .then((result) => {
               if (result.success) {
+                // Mark device as checked in
+                const today = new Date().toDateString()
+                localStorage.setItem('iclc_checkin_date', today)
+
                 // Show success modal with lucky number
                 document.getElementById('luckyNumberDisplay').textContent =
                   '#' + result.luckyNumber
@@ -451,6 +492,8 @@
                 $('#successModal').on('hidden.bs.modal', function () {
                   document.getElementById('inputForm').reset()
                   document.getElementById('customerId').value = ''
+                  // Disable form after successful check-in
+                  disableFormForDevice()
                 })
               } else {
                 alert('Error: ' + result.message)
