@@ -4,47 +4,29 @@ const express = require('express')
 const path = require('path')
 const mysql = require('mysql2')
 const XLSX = require('xlsx')
-const multer = require('multer')
 
 const app = express()
 const PORT = process.env.PORT || 3111
 
-// Configure multer for file uploads
-const storage = multer.memoryStorage()
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
-  },
-  fileFilter: (req, file, cb) => {
-    // Check if file is Excel
-    const allowedMimes = [
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    ]
-    if (allowedMimes.includes(file.mimetype)) {
-      cb(null, true)
-    } else {
-      cb(new Error('Only Excel files are allowed'))
-    }
-  }
-})
-
-// MySQL connection - Load from environment variables
-const db = mysql.createConnection({
+// MySQL connection pool - Load from environment variables
+const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   port: process.env.DB_PORT,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 })
 
-db.connect((err) => {
+db.getConnection((err, connection) => {
   if (err) {
     console.error('Error connecting to MySQL:', err)
     return
   }
-  console.log('Connected to MySQL database')
+  console.log('Connected to MySQL database pool')
+  connection.release()
 })
 
 // Middleware to parse JSON and URL-encoded data
@@ -288,156 +270,6 @@ app.get('/api/export-checkins', (req, res) => {
   })
 })
 
-// Import customers from Excel (needs to be before auth middleware for multipart handling)
-app.post('/api/admin/import-customers', upload.single('excelFile'), (req, res) => {
-  // Manual auth check for multipart request
-  const token = req.headers.authorization?.replace('Bearer ', '') ||
-                req.query.token ||
-                req.body.token
-
-  if (!token) {
-    return res.status(401).json({ success: false, message: 'Authentication required' })
-  }
-
-  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
-  const expectedToken = Buffer.from(adminPassword + 'salt').toString('base64')
-
-  if (token !== expectedToken) {
-    return res.status(401).json({ success: false, message: 'Invalid token' })
-  }
-
-  if (!req.file) {
-    return res.status(400).json({ success: false, message: 'No file uploaded' })
-  }
-
-  try {
-    // Parse Excel file
-    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' })
-    const sheetName = workbook.SheetNames[0]
-    const worksheet = workbook.Sheets[sheetName]
-
-    // Convert to JSON, skip first row (headers)
-    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
-
-    // Remove header row
-    jsonData.shift()
-
-    if (jsonData.length === 0) {
-      return res.status(400).json({ success: false, message: 'No data found in Excel file' })
-    }
-
-    // Process data
-    const customers = []
-    const errors = []
-    const processedIds = new Set()
-
-    jsonData.forEach((row, index) => {
-      const rowNum = index + 2 // +2 because we removed header and arrays are 0-indexed
-      const [luckyNumber, name, department] = row
-
-      // Validate required fields
-      if (!luckyNumber || !name) {
-        errors.push(`Row ${rowNum}: Missing lucky_number or name`)
-        return
-      }
-
-      // Check for duplicate lucky numbers in the file
-      if (processedIds.has(luckyNumber)) {
-        errors.push(`Row ${rowNum}: Duplicate lucky_number ${luckyNumber}`)
-        return
-      }
-
-      processedIds.add(luckyNumber)
-
-      customers.push({
-        id: parseInt(luckyNumber),
-        name: String(name).trim(),
-        department: department ? String(department).trim() : null
-      })
-    })
-
-    if (errors.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: `Import failed due to validation errors: ${errors.join('; ')}`
-      })
-    }
-
-    if (customers.length === 0) {
-      return res.status(400).json({ success: false, message: 'No valid customers to import' })
-    }
-
-    // Check for existing IDs and prepare insert/update queries
-    const existingIds = []
-    const newCustomers = []
-
-    // Check which IDs already exist
-    const checkPromises = customers.map(customer => {
-      return new Promise((resolve) => {
-        db.query('SELECT id FROM checkin_iclc_2026 WHERE id = ?', [customer.id], (err, results) => {
-          if (err) {
-            console.error('Error checking existing ID:', err)
-            resolve(null)
-          } else {
-            resolve(results.length > 0 ? customer.id : null)
-          }
-        })
-      })
-    })
-
-    Promise.all(checkPromises).then(results => {
-      existingIds.push(...results.filter(id => id !== null))
-      newCustomers.push(...customers.filter(customer => !existingIds.includes(customer.id)))
-
-      // Insert new customers
-      if (newCustomers.length > 0) {
-        const insertPromises = newCustomers.map(customer => {
-          return new Promise((resolve, reject) => {
-            const query = 'INSERT INTO checkin_iclc_2026 (id, name, department, checked, created_at) VALUES (?, ?, ?, 0, CONVERT_TZ(NOW(), \'UTC\', \'Asia/Ho_Chi_Minh\'))'
-            db.query(query, [customer.id, customer.name, customer.department], (err, result) => {
-              if (err) {
-                console.error('Error inserting customer:', err)
-                reject(err)
-              } else {
-                resolve(result)
-              }
-            })
-          })
-        })
-
-        Promise.all(insertPromises)
-          .then(() => {
-            const message = `Import completed! ${newCustomers.length} customers imported. ${existingIds.length > 0 ? `${existingIds.length} customers already existed and were skipped.` : ''}`
-            res.json({
-              success: true,
-              message: message,
-              imported: newCustomers.length,
-              skipped: existingIds.length
-            })
-          })
-          .catch(error => {
-            console.error('Import error:', error)
-            res.status(500).json({ success: false, message: 'Import failed during database insertion' })
-          })
-      } else {
-        res.json({
-          success: true,
-          message: `All ${customers.length} customers already exist in the database.`,
-          imported: 0,
-          skipped: customers.length
-        })
-      }
-    }).catch(error => {
-      console.error('Error checking existing IDs:', error)
-      res.status(500).json({ success: false, message: 'Import failed during validation' })
-    })
-
-  } catch (error) {
-    console.error('Excel parsing error:', error)
-    res.status(400).json({ success: false, message: 'Invalid Excel file format' })
-  }
-})
-
 // Admin API endpoints (protected)
 app.use('/api/admin', requireAdminAuth)
 
@@ -575,4 +407,3 @@ app.delete('/api/admin/customers/:id', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`)
 })
-

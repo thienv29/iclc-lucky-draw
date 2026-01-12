@@ -222,9 +222,6 @@
                   <button class="btn btn-admin" onclick="exportToExcel()">
                     <i class="fas fa-download"></i> Export Excel
                   </button>
-                  <button class="btn btn-admin" onclick="showImportModal()">
-                    <i class="fas fa-upload"></i> Import Excel
-                  </button>
                   <a href="/checkin-list" class="btn btn-admin" target="_blank">
                     <i class="fas fa-external-link-alt"></i> View Check-in List
                   </a>
@@ -348,78 +345,7 @@
       </div>
     </div>
 
-    <!-- Import Excel Modal -->
-    <div class="modal fade" id="importModal" tabindex="-1" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Import Customers from Excel</h5>
-            <button type="button" class="close" data-dismiss="modal">
-              <span>&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="alert alert-info">
-              <i class="fas fa-info-circle"></i>
-              <strong>Excel Format Requirements:</strong>
-              <ul class="mb-0 mt-2">
-                <li>
-                  First row should be headers:
-                  <code>lucky_number, name, department</code>
-                </li>
-                <li>Data starts from row 2</li>
-                <li>Only these 3 columns are required</li>
-                <li>Duplicate lucky_numbers will be skipped</li>
-              </ul>
-            </div>
 
-            <form id="importForm" enctype="multipart/form-data">
-              <div class="form-group">
-                <label for="excelFile">Select Excel File</label>
-                <input
-                  type="file"
-                  class="form-control-file"
-                  id="excelFile"
-                  accept=".xlsx,.xls"
-                  required
-                />
-                <small class="form-text text-muted">
-                  Supported formats: .xlsx, .xls
-                </small>
-              </div>
-            </form>
-
-            <div id="importProgress" style="display: none">
-              <div class="progress mb-3">
-                <div
-                  class="progress-bar progress-bar-striped progress-bar-animated"
-                  role="progressbar"
-                  style="width: 0%"
-                ></div>
-              </div>
-              <div id="importStatus">Processing...</div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-dismiss="modal"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="btn btn-admin"
-              onclick="importExcel()"
-              id="importBtn"
-            >
-              <i class="fas fa-upload"></i> Import
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <script src="./assets/lib/js/jquery-3.3.1.slim.min.js"></script>
     <script src="./assets/lib/js/popper.min.js"></script>
@@ -730,85 +656,7 @@
         }
       }
 
-      function showImportModal() {
-        document.getElementById('importForm').reset()
-        document.getElementById('importProgress').style.display = 'none'
-        document.getElementById('importBtn').disabled = false
-        document.getElementById('importBtn').innerHTML =
-          '<i class="fas fa-upload"></i> Import'
-        $('#importModal').modal('show')
-      }
 
-      function importExcel() {
-        const fileInput = document.getElementById('excelFile')
-        const file = fileInput.files[0]
-
-        if (!file) {
-          alert('Please select an Excel file.')
-          return
-        }
-
-        // Check file extension
-        const allowedExtensions = ['.xlsx', '.xls']
-        const fileName = file.name.toLowerCase()
-        const isValidFile = allowedExtensions.some((ext) =>
-          fileName.endsWith(ext)
-        )
-
-        if (!isValidFile) {
-          alert('Please select a valid Excel file (.xlsx or .xls).')
-          return
-        }
-
-        // Show progress
-        document.getElementById('importProgress').style.display = 'block'
-        document.getElementById('importStatus').textContent =
-          'Reading Excel file...'
-        document.getElementById('importBtn').disabled = true
-        document.getElementById('importBtn').innerHTML =
-          '<i class="fas fa-spinner fa-spin"></i> Importing...'
-
-        const formData = new FormData()
-        formData.append('excelFile', file)
-
-        // Update progress
-        const progressBar = document.querySelector('.progress-bar')
-        progressBar.style.width = '25%'
-        document.getElementById('importStatus').textContent =
-          'Uploading file...'
-
-        authenticatedFetch('/api/admin/import-customers', {
-          method: 'POST',
-          body: formData,
-          headers: {}, // Let browser set Content-Type for FormData
-        })
-          .then((response) => response.json())
-          .then((result) => {
-            progressBar.style.width = '100%'
-            document.getElementById('importStatus').textContent =
-              result.message || 'Import completed!'
-
-            if (result.success) {
-              setTimeout(() => {
-                $('#importModal').modal('hide')
-                loadData()
-              }, 1500)
-            } else {
-              document.getElementById('importBtn').disabled = false
-              document.getElementById('importBtn').innerHTML =
-                '<i class="fas fa-upload"></i> Import'
-            }
-          })
-          .catch((error) => {
-            console.error('Import error:', error)
-            document.getElementById('importStatus').textContent =
-              'Import failed. Please try again.'
-            document.getElementById('importBtn').disabled = false
-            document.getElementById('importBtn').innerHTML =
-              '<i class="fas fa-upload"></i> Import'
-            progressBar.style.width = '0%'
-          })
-      }
 
       function exportToExcel() {
         // Create a temporary link to download the file
