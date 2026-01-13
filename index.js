@@ -227,7 +227,7 @@ app.get('/api/customers-by-department', (req, res) => {
   if (department === 'Guest') {
     // For Guests, get customers with no department, empty department, or guest-related departments
     query =
-      'SELECT id, name, department FROM checkin_iclc_2026 WHERE (department IS NULL OR department = "" OR department IN ("Guest", "Khách mời", "Khch mi")) AND checked = 0 ORDER BY name ASC'
+      'SELECT id, name, department FROM checkin_iclc_2026 WHERE (department IS NULL OR department = "" OR department IN ("Guest", "Khách mời")) AND checked = 0 ORDER BY name ASC'
     params = []
   } else if (department === 'Foreign Teacher') {
     // For Foreign Teachers, match exact department name
@@ -244,7 +244,7 @@ app.get('/api/customers-by-department', (req, res) => {
     // This includes all departments that are not "Foreign Teacher", "Teaching Assistant - Vietnamese Teacher",
     // and not guest-related (null/empty, "Guest", "Khách mời", "Khch mi")
     query =
-      'SELECT id, name, department FROM checkin_iclc_2026 WHERE department IS NOT NULL AND department != "" AND department NOT IN (?, ?, "Guest", "Khách mời", "Khch mi") AND checked = 0 ORDER BY name ASC'
+      'SELECT id, name, department FROM checkin_iclc_2026 WHERE department IS NOT NULL AND department != "" AND department NOT IN (?, ?, "Guest", "Khách mời") AND checked = 0 ORDER BY name ASC'
     params = ['Foreign Teacher', 'Teaching Assistant - Vietnamese Teacher']
   } else {
     // Fallback for any other department
