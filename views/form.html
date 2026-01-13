@@ -45,7 +45,10 @@
         border-radius: 10px;
         border: 1px solid #ced4da;
         transition: all 0.3s ease;
+        height: 60px;
         min-height: 60px;
+        max-height: 60px;
+        box-sizing: border-box;
       }
 
       .form-control:focus {
@@ -69,10 +72,13 @@
       }
 
       .dropdown-item {
-        padding: 12px 14px;
+        padding: 16px 14px;
         cursor: pointer;
         border-bottom: 1px solid #f8f9fa;
         transition: background-color 0.2s ease;
+        height: 50px;
+        display: flex;
+        align-items: center;
       }
 
       .dropdown-item:hover,
@@ -149,15 +155,19 @@
                 </div>
                 <div class="form-group">
                   <label for="customer">Full Name</label>
-                  <select
-                    class="form-control"
-                    id="customerSelect"
-                    required
-                    disabled
-                  >
-                    <option value="">Select your name...</option>
-                  </select>
-                  <input type="hidden" id="customerId" name="customerId" />
+                  <div class="input-wrapper">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="customerSearch"
+                      placeholder="Search your name..."
+                      autocomplete="off"
+                      required
+                      disabled
+                    />
+                    <input type="hidden" id="customerId" name="customerId" />
+                    <div class="dropdown-list" id="customersDropdown"></div>
+                  </div>
                 </div>
                 <!-- Note field hidden as requested -->
                 <input type="hidden" id="note" name="note" value="" />
@@ -270,6 +280,9 @@
     <script src="./assets/lib/js/popper.min.js"></script>
     <script src="./assets/lib/js/bootstrap.min.js"></script>
     <script>
+      let customers = []
+      let selectedIndex = -1
+
       // Load departments and setup form on page load
       document.addEventListener('DOMContentLoaded', function () {
         loadDepartments()
@@ -288,26 +301,21 @@
           .getElementById('departmentSelect')
           .addEventListener('change', function () {
             const selectedDepartment = this.value
-            const customerSelect = document.getElementById('customerSelect')
+            const customerSearchInput =
+              document.getElementById('customerSearch')
 
             if (selectedDepartment) {
               loadCustomersByDepartment(selectedDepartment)
-              customerSelect.disabled = false
+              customerSearchInput.disabled = false
+              setupSearchDropdown()
             } else {
-              customerSelect.innerHTML =
-                '<option value="">Select your name...</option>'
-              customerSelect.disabled = true
+              customerSearchInput.disabled = true
+              customerSearchInput.value = ''
+              customerSearchInput.placeholder = 'Search your name...'
               document.getElementById('customerId').value = ''
+              customers = []
+              hideDropdown()
             }
-          })
-
-        // Setup customer change handler
-        document
-          .getElementById('customerSelect')
-          .addEventListener('change', function () {
-            const selectedOption = this.options[this.selectedIndex]
-            const customerId = selectedOption.getAttribute('data-id')
-            document.getElementById('customerId').value = customerId || ''
           })
       })
 
@@ -317,7 +325,7 @@
           .then((departments) => {
             const departmentSelect = document.getElementById('departmentSelect')
             departmentSelect.innerHTML =
-              '<option value="">Select Department / Guest</option>'
+              '<option value="">Select your role...</option>'
 
             departments.forEach((department) => {
               const option = document.createElement('option')
@@ -342,28 +350,149 @@
           )}`
         )
           .then((response) => response.json())
-          .then((customers) => {
-            const customerSelect = document.getElementById('customerSelect')
-            customerSelect.innerHTML =
-              '<option value="">Select your name...</option>'
-
-            customers.forEach((customer) => {
-              const option = document.createElement('option')
-              option.value = customer.id
-              option.textContent = customer.name
-              option.setAttribute('data-id', customer.id)
-              customerSelect.appendChild(option)
-            })
-
-            // Reset customer ID
-            document.getElementById('customerId').value = ''
+          .then((data) => {
+            customers = data
+            // Show all customers initially (no search term)
+            showDropdown('')
           })
           .catch((error) => {
             console.error('Error loading customers:', error)
-            const customerSelect = document.getElementById('customerSelect')
-            customerSelect.innerHTML =
-              '<option value="">Error loading customers</option>'
+            customers = []
+            hideDropdown()
           })
+      }
+
+      function setupSearchDropdown() {
+        const searchInput = document.getElementById('customerSearch')
+        const dropdown = document.getElementById('customersDropdown')
+
+        // Show dropdown on focus/click
+        searchInput.addEventListener('focus', function () {
+          showDropdown('')
+        })
+
+        searchInput.addEventListener('click', function () {
+          showDropdown('')
+        })
+
+        // Filter dropdown on input
+        searchInput.addEventListener('input', function () {
+          const searchTerm = this.value.toLowerCase()
+          showDropdown(searchTerm)
+        })
+
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+          if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+            hideDropdown()
+          }
+        })
+
+        // Handle keyboard navigation
+        searchInput.addEventListener('keydown', function (e) {
+          const items = dropdown.querySelectorAll('.dropdown-item')
+
+          if (e.key === 'ArrowDown') {
+            e.preventDefault()
+            selectedIndex = Math.min(selectedIndex + 1, items.length - 1)
+            updateSelection(items)
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault()
+            selectedIndex = Math.max(selectedIndex - 1, -1)
+            updateSelection(items)
+          } else if (e.key === 'Enter') {
+            e.preventDefault()
+            if (selectedIndex >= 0 && items[selectedIndex]) {
+              selectCustomer(items[selectedIndex])
+            }
+          } else if (e.key === 'Escape') {
+            hideDropdown()
+          }
+        })
+      }
+
+      function showDropdown(searchTerm) {
+        const dropdown = document.getElementById('customersDropdown')
+        dropdown.innerHTML = ''
+
+        const filteredCustomers = customers.filter(
+          (customer) =>
+            !searchTerm ||
+            customer.name.toLowerCase().includes(searchTerm) ||
+            (customer.department &&
+              customer.department.toLowerCase().includes(searchTerm))
+        )
+
+        if (filteredCustomers.length === 0) {
+          const noResult = document.createElement('div')
+          noResult.className = 'dropdown-item'
+          noResult.textContent = 'No customers found'
+          noResult.style.color = '#6c757d'
+          noResult.style.cursor = 'default'
+          dropdown.appendChild(noResult)
+        } else {
+          // Get selected department to determine display format
+          const selectedDepartment =
+            document.getElementById('departmentSelect').value
+
+          filteredCustomers.forEach((customer, index) => {
+            const item = document.createElement('div')
+            item.className = 'dropdown-item'
+
+            // For Employee category, show "Name - Department"
+            // For other categories, show only "Name"
+            if (selectedDepartment === 'Employee') {
+              item.textContent = `${customer.name} - ${
+                customer.department || 'No Department'
+              }`
+            } else {
+              item.textContent = customer.name
+            }
+
+            item.setAttribute('data-id', customer.id)
+            item.setAttribute('data-index', index)
+
+            item.addEventListener('click', function () {
+              selectCustomer(this)
+            })
+
+            item.addEventListener('mouseenter', function () {
+              selectedIndex = parseInt(this.getAttribute('data-index'))
+              updateSelection(dropdown.querySelectorAll('.dropdown-item'))
+            })
+
+            dropdown.appendChild(item)
+          })
+        }
+
+        dropdown.style.display = 'block'
+        selectedIndex = -1
+      }
+
+      function hideDropdown() {
+        const dropdown = document.getElementById('customersDropdown')
+        dropdown.style.display = 'none'
+        selectedIndex = -1
+      }
+
+      function updateSelection(items) {
+        items.forEach((item, index) => {
+          if (index === selectedIndex) {
+            item.classList.add('active')
+          } else {
+            item.classList.remove('active')
+          }
+        })
+      }
+
+      function selectCustomer(item) {
+        const customerId = item.getAttribute('data-id')
+        const customerName = item.textContent
+
+        document.getElementById('customerSearch').value = customerName
+        document.getElementById('customerId').value = customerId
+
+        hideDropdown()
       }
 
       function disableFormForDevice() {
@@ -386,6 +515,12 @@ You have already checked in!</strong><br>
         inputs.forEach((input) => {
           input.disabled = true
         })
+
+        // Hide the dropdown
+        const dropdown = document.getElementById('customersDropdown')
+        if (dropdown) {
+          dropdown.style.display = 'none'
+        }
       }
 
       document
@@ -430,7 +565,9 @@ You have already checked in!</strong><br>
                 $('#successModal').on('hidden.bs.modal', function () {
                   document.getElementById('inputForm').reset()
                   document.getElementById('customerId').value = ''
-                  document.getElementById('customerSelect').disabled = true
+                  document.getElementById('customerSearch').disabled = true
+                  customers = []
+                  hideDropdown()
                   // Disable form after successful check-in
                   disableFormForDevice()
                 })
