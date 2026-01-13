@@ -17,7 +17,7 @@ const db = mysql.createPool({
   port: process.env.DB_PORT,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
 })
 
 db.getConnection((err, connection) => {
@@ -58,12 +58,15 @@ app.get('/checkin-list', (req, res) => {
 
 // Middleware to check admin authentication
 function requireAdminAuth(req, res, next) {
-  const token = req.headers.authorization?.replace('Bearer ', '') ||
-                req.query.token ||
-                req.body.token
+  const token =
+    req.headers.authorization?.replace('Bearer ', '') ||
+    req.query.token ||
+    req.body.token
 
   if (!token) {
-    return res.status(401).json({ success: false, message: 'Authentication required' })
+    return res
+      .status(401)
+      .json({ success: false, message: 'Authentication required' })
   }
 
   // Simple token validation (in production, use JWT or more secure method)
@@ -94,12 +97,12 @@ app.post('/api/admin/login', (req, res) => {
     res.json({
       success: true,
       message: 'Login successful',
-      token: token
+      token: token,
     })
   } else {
     res.status(401).json({
       success: false,
-      message: 'Invalid password'
+      message: 'Invalid password',
     })
   }
 })
@@ -114,7 +117,8 @@ app.post('/checkin', (req, res) => {
   const { customerId, note } = req.body
 
   // First verify customer exists
-  const getCustomerQuery = 'SELECT name, department FROM checkin_iclc_2026 WHERE id = ?'
+  const getCustomerQuery =
+    'SELECT name, department FROM checkin_iclc_2026 WHERE id = ?'
 
   db.query(getCustomerQuery, [customerId], (err, customerResults) => {
     if (err) {
@@ -123,7 +127,9 @@ app.post('/checkin', (req, res) => {
     }
 
     if (customerResults.length === 0) {
-      return res.status(404).json({ success: false, message: 'Customer not found' })
+      return res
+        .status(404)
+        .json({ success: false, message: 'Customer not found' })
     }
 
     // Update checked status, note if provided, and checkin_at timestamp
@@ -131,24 +137,32 @@ app.post('/checkin', (req, res) => {
     let updateParams
 
     if (note && note.trim()) {
-      updateQuery = 'UPDATE checkin_iclc_2026 SET checked = 1, note = ?, checkin_at = CONVERT_TZ(NOW(), \'UTC\', \'Asia/Ho_Chi_Minh\') WHERE id = ?'
+      updateQuery =
+        "UPDATE checkin_iclc_2026 SET checked = 1, note = ?, checkin_at = CONVERT_TZ(NOW(), 'UTC', 'Asia/Ho_Chi_Minh') WHERE id = ?"
       updateParams = [note, customerId]
     } else {
-      updateQuery = 'UPDATE checkin_iclc_2026 SET checked = 1, checkin_at = CONVERT_TZ(NOW(), \'UTC\', \'Asia/Ho_Chi_Minh\') WHERE id = ?'
+      updateQuery =
+        "UPDATE checkin_iclc_2026 SET checked = 1, checkin_at = CONVERT_TZ(NOW(), 'UTC', 'Asia/Ho_Chi_Minh') WHERE id = ?"
       updateParams = [customerId]
     }
 
     db.query(updateQuery, updateParams, (err, updateResult) => {
       if (err) {
         console.error('Error updating customer:', err)
-        return res.status(500).json({ success: false, message: 'Database error' })
+        return res
+          .status(500)
+          .json({ success: false, message: 'Database error' })
       }
 
-      console.log('Check-in successful for customer:', customerResults[0].name, note && note.trim() ? '- Note updated' : '')
+      console.log(
+        'Check-in successful for customer:',
+        customerResults[0].name,
+        note && note.trim() ? '- Note updated' : ''
+      )
       res.json({
         success: true,
         message: 'Check-in successful!',
-        luckyNumber: customerId
+        luckyNumber: customerId,
       })
     })
   })
@@ -156,7 +170,8 @@ app.post('/checkin', (req, res) => {
 
 // API endpoint to get check-in data
 app.get('/api/checkins', (req, res) => {
-  const query = 'SELECT id, name, department, note, checkin_at FROM checkin_iclc_2026 ORDER BY id ASC'
+  const query =
+    'SELECT id, name, department, note, checkin_at FROM checkin_iclc_2026 ORDER BY id ASC'
 
   db.query(query, (err, results) => {
     if (err) {
@@ -170,11 +185,77 @@ app.get('/api/checkins', (req, res) => {
 
 // API endpoint to get list of customers
 app.get('/api/customers', (req, res) => {
-  const query = 'SELECT id, name, department FROM checkin_iclc_2026 WHERE checked = 0 ORDER BY name ASC'
+  const query =
+    'SELECT id, name, department FROM checkin_iclc_2026 WHERE checked = 0 ORDER BY name ASC'
 
   db.query(query, (err, results) => {
     if (err) {
       console.error('Error fetching customers:', err)
+      return res.status(500).json({ success: false, message: 'Database error' })
+    }
+
+    res.json(results)
+  })
+})
+
+// API endpoint to get departments (fixed 4 categories)
+app.get('/api/departments', (req, res) => {
+  // Fixed 4 categories in English as requested
+  const categories = [
+    'Employee', // Nhân viên
+    'Foreign Teacher', // Giáo viên nước ngoài
+    'Teaching Assistant - Vietnamese Teacher', // Trợ giảng - Giáo viên Việt Nam
+    'Guest', // Khách mời
+  ]
+
+  res.json(categories)
+})
+
+// API endpoint to get customers by department
+app.get('/api/customers-by-department', (req, res) => {
+  const department = req.query.department
+
+  if (!department) {
+    return res
+      .status(400)
+      .json({ success: false, message: 'Department parameter is required' })
+  }
+
+  let query
+  let params
+
+  if (department === 'Guest') {
+    // For Guests, get customers with no department, empty department, or guest-related departments
+    query =
+      'SELECT id, name, department FROM checkin_iclc_2026 WHERE (department IS NULL OR department = "" OR department IN ("Guest", "Khách mời", "Khch mi")) AND checked = 0 ORDER BY name ASC'
+    params = []
+  } else if (department === 'Foreign Teacher') {
+    // For Foreign Teachers, match exact department name
+    query =
+      'SELECT id, name, department FROM checkin_iclc_2026 WHERE department = ? AND checked = 0 ORDER BY name ASC'
+    params = [department]
+  } else if (department === 'Teaching Assistant - Vietnamese Teacher') {
+    // For Teaching Assistants - Vietnamese Teachers, match exact department name
+    query =
+      'SELECT id, name, department FROM checkin_iclc_2026 WHERE department = ? AND checked = 0 ORDER BY name ASC'
+    params = [department]
+  } else if (department === 'Employee') {
+    // For Employee, get all except the other 3 categories and all guest-related entries
+    // This includes all departments that are not "Foreign Teacher", "Teaching Assistant - Vietnamese Teacher",
+    // and not guest-related (null/empty, "Guest", "Khách mời", "Khch mi")
+    query =
+      'SELECT id, name, department FROM checkin_iclc_2026 WHERE department IS NOT NULL AND department != "" AND department NOT IN (?, ?, "Guest", "Khách mời", "Khch mi") AND checked = 0 ORDER BY name ASC'
+    params = ['Foreign Teacher', 'Teaching Assistant - Vietnamese Teacher']
+  } else {
+    // Fallback for any other department
+    query =
+      'SELECT id, name, department FROM checkin_iclc_2026 WHERE department = ? AND checked = 0 ORDER BY name ASC'
+    params = [department]
+  }
+
+  db.query(query, params, (err, results) => {
+    if (err) {
+      console.error('Error fetching customers by department:', err)
       return res.status(500).json({ success: false, message: 'Database error' })
     }
 
@@ -199,7 +280,8 @@ app.get('/api/total-members', (req, res) => {
 
 // API endpoint to get list of checked-in IDs for lucky draw
 app.get('/api/checked-in-ids', (req, res) => {
-  const query = 'SELECT id FROM checkin_iclc_2026 WHERE checked = 1 ORDER BY id ASC'
+  const query =
+    'SELECT id FROM checkin_iclc_2026 WHERE checked = 1 ORDER BY id ASC'
 
   db.query(query, (err, results) => {
     if (err) {
@@ -207,17 +289,18 @@ app.get('/api/checked-in-ids', (req, res) => {
       return res.status(500).json({ success: false, message: 'Database error' })
     }
 
-    const ids = results.map(item => item.id)
-    res.json({ 
+    const ids = results.map((item) => item.id)
+    res.json({
       totalMembers: ids.length,
-      ids: ids 
+      ids: ids,
     })
   })
 })
 
 // API endpoint to export check-in data to Excel
 app.get('/api/export-checkins', (req, res) => {
-  const query = 'SELECT id, name, department, note, checkin_at FROM checkin_iclc_2026 ORDER BY id ASC'
+  const query =
+    'SELECT id, name, department, note, checkin_at FROM checkin_iclc_2026 ORDER BY id ASC'
 
   db.query(query, (err, results) => {
     if (err) {
@@ -226,19 +309,21 @@ app.get('/api/export-checkins', (req, res) => {
     }
 
     // Prepare data for Excel
-    const excelData = results.map(item => ({
+    const excelData = results.map((item) => ({
       'Lucky Number': item.id,
-      'Name': item.name,
-      'Department': item.department,
-      'Note': item.note || '',
-      'Check-in Time': item.checkin_at ? new Date(item.checkin_at).toLocaleString('vi-VN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      }) : ''
+      Name: item.name,
+      Department: item.department,
+      Note: item.note || '',
+      'Check-in Time': item.checkin_at
+        ? new Date(item.checkin_at).toLocaleString('vi-VN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          })
+        : '',
     }))
 
     // Create workbook and worksheet
@@ -251,7 +336,7 @@ app.get('/api/export-checkins', (req, res) => {
       { wch: 30 }, // Name
       { wch: 20 }, // Department
       { wch: 40 }, // Note
-      { wch: 20 }  // Check-in Time
+      { wch: 20 }, // Check-in Time
     ]
 
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Check-in List')
@@ -262,7 +347,10 @@ app.get('/api/export-checkins', (req, res) => {
     const filename = `checkin_list_${dateStr}.xlsx`
 
     // Send file as response
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
     res.setHeader('Content-Disposition', `attachment; filename=${filename}`)
 
     const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
@@ -275,7 +363,8 @@ app.use('/api/admin', requireAdminAuth)
 
 // Get all customers for admin (including checked status)
 app.get('/api/admin/customers', (req, res) => {
-  const query = 'SELECT id, name, department, note, checked, checkin_at FROM checkin_iclc_2026 ORDER BY id ASC'
+  const query =
+    'SELECT id, name, department, note, checked, checkin_at FROM checkin_iclc_2026 ORDER BY id ASC'
 
   db.query(query, (err, results) => {
     if (err) {
@@ -295,21 +384,33 @@ app.post('/api/admin/customers', (req, res) => {
     return res.status(400).json({ success: false, message: 'Name is required' })
   }
 
-  const query = 'INSERT INTO checkin_iclc_2026 (name, department, note, checked, created_at) VALUES (?, ?, ?, ?, CONVERT_TZ(NOW(), \'UTC\', \'Asia/Ho_Chi_Minh\'))'
+  const query =
+    "INSERT INTO checkin_iclc_2026 (name, department, note, checked, created_at) VALUES (?, ?, ?, ?, CONVERT_TZ(NOW(), 'UTC', 'Asia/Ho_Chi_Minh'))"
 
-  db.query(query, [name.trim(), department ? department.trim() : null, note ? note.trim() : null, checked || 0], (err, result) => {
-    if (err) {
-      console.error('Error adding customer:', err)
-      return res.status(500).json({ success: false, message: 'Database error' })
+  db.query(
+    query,
+    [
+      name.trim(),
+      department ? department.trim() : null,
+      note ? note.trim() : null,
+      checked || 0,
+    ],
+    (err, result) => {
+      if (err) {
+        console.error('Error adding customer:', err)
+        return res
+          .status(500)
+          .json({ success: false, message: 'Database error' })
+      }
+
+      console.log('Customer added successfully:', result.insertId)
+      res.json({
+        success: true,
+        message: 'Customer added successfully',
+        customerId: result.insertId,
+      })
     }
-
-    console.log('Customer added successfully:', result.insertId)
-    res.json({
-      success: true,
-      message: 'Customer added successfully',
-      customerId: result.insertId
-    })
-  })
+  )
 })
 
 // Update customer
@@ -323,16 +424,28 @@ app.put('/api/admin/customers/:id', (req, res) => {
 
   // If unchecking (checked = 0), also clear checkin_at timestamp
   const isChecked = checked === 1 ? 1 : 0
-  
+
   let query
   let params
-  
+
   if (isChecked === 0) {
-    query = 'UPDATE checkin_iclc_2026 SET name = ?, department = ?, note = ?, checked = 0, checkin_at = NULL WHERE id = ?'
-    params = [name.trim(), department ? department.trim() : null, note ? note.trim() : null, id]
+    query =
+      'UPDATE checkin_iclc_2026 SET name = ?, department = ?, note = ?, checked = 0, checkin_at = NULL WHERE id = ?'
+    params = [
+      name.trim(),
+      department ? department.trim() : null,
+      note ? note.trim() : null,
+      id,
+    ]
   } else {
-    query = 'UPDATE checkin_iclc_2026 SET name = ?, department = ?, note = ?, checked = 1, checkin_at = CONVERT_TZ(NOW(), \'UTC\', \'Asia/Ho_Chi_Minh\') WHERE id = ?'
-    params = [name.trim(), department ? department.trim() : null, note ? note.trim() : null, id]
+    query =
+      "UPDATE checkin_iclc_2026 SET name = ?, department = ?, note = ?, checked = 1, checkin_at = CONVERT_TZ(NOW(), 'UTC', 'Asia/Ho_Chi_Minh') WHERE id = ?"
+    params = [
+      name.trim(),
+      department ? department.trim() : null,
+      note ? note.trim() : null,
+      id,
+    ]
   }
 
   db.query(query, params, (err, result) => {
@@ -342,13 +455,15 @@ app.put('/api/admin/customers/:id', (req, res) => {
     }
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ success: false, message: 'Customer not found' })
+      return res
+        .status(404)
+        .json({ success: false, message: 'Customer not found' })
     }
 
     console.log('Customer updated successfully:', id)
     res.json({
       success: true,
-      message: 'Customer updated successfully'
+      message: 'Customer updated successfully',
     })
   })
 })
@@ -357,7 +472,8 @@ app.put('/api/admin/customers/:id', (req, res) => {
 app.put('/api/admin/customers/:id/reset', (req, res) => {
   const id = req.params.id
 
-  const query = 'UPDATE checkin_iclc_2026 SET checked = 0, checkin_at = NULL WHERE id = ?'
+  const query =
+    'UPDATE checkin_iclc_2026 SET checked = 0, checkin_at = NULL WHERE id = ?'
 
   db.query(query, [id], (err, result) => {
     if (err) {
@@ -366,13 +482,15 @@ app.put('/api/admin/customers/:id/reset', (req, res) => {
     }
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ success: false, message: 'Customer not found' })
+      return res
+        .status(404)
+        .json({ success: false, message: 'Customer not found' })
     }
 
     console.log('Customer check-in reset successfully:', id)
     res.json({
       success: true,
-      message: 'Customer check-in status reset successfully'
+      message: 'Customer check-in status reset successfully',
     })
   })
 })
@@ -390,18 +508,18 @@ app.delete('/api/admin/customers/:id', (req, res) => {
     }
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ success: false, message: 'Customer not found' })
+      return res
+        .status(404)
+        .json({ success: false, message: 'Customer not found' })
     }
 
     console.log('Customer deleted successfully:', id)
     res.json({
       success: true,
-      message: 'Customer deleted successfully'
+      message: 'Customer deleted successfully',
     })
   })
 })
-
-
 
 // Start the server
 app.listen(PORT, () => {

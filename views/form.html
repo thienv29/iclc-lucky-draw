@@ -43,10 +43,9 @@
 
       .form-control {
         border-radius: 10px;
-        padding: 15px 14px;
         border: 1px solid #ced4da;
         transition: all 0.3s ease;
-        min-height: 50px;
+        min-height: 60px;
       }
 
       .form-control:focus {
@@ -143,29 +142,25 @@
             <div class="card-body">
               <form id="inputForm">
                 <div class="form-group">
-                  <label for="customer">You are </label>
-                  <div class="input-wrapper">
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="customerSearch"
-                      placeholder="Search your name..."
-                      autocomplete="off"
-                      required
-                    />
-                    <input type="hidden" id="customerId" name="customerId" />
-                    <div class="dropdown-list" id="customersDropdown"></div>
-                  </div>
+                  <label for="department">You are</label>
+                  <select class="form-control" id="departmentSelect" required>
+                    <option value="">Select Department / Guest</option>
+                  </select>
                 </div>
                 <div class="form-group">
-                  <label for="note">Note</label>
-                  <textarea
+                  <label for="customer">Full Name</label>
+                  <select
                     class="form-control"
-                    id="note"
-                    name="note"
-                    rows="3"
-                  ></textarea>
+                    id="customerSelect"
+                    required
+                    disabled
+                  >
+                    <option value="">Select your name...</option>
+                  </select>
+                  <input type="hidden" id="customerId" name="customerId" />
                 </div>
+                <!-- Note field hidden as requested -->
+                <input type="hidden" id="note" name="note" value="" />
                 <button type="submit" class="btn btn-primary btn-block">
                   CHECK-IN
                 </button>
@@ -226,9 +221,12 @@
                 </svg>
               </div>
             </div>
-            <h3 class="mb-3" style="color: #662872; font-weight: 700">
-              Check-in Success!
-            </h3>
+            <h2
+              class="mb-3"
+              style="color: #662872; font-weight: 700; font-size: 32px"
+            >
+              You have successfully checked in!
+            </h2>
             <p class="mb-2" style="color: #666; font-size: 1.1em">
               Your lucky number is:
             </p>
@@ -245,8 +243,7 @@
               >
             </div>
             <p class="mb-4" style="color: #888">
-              Thank you for participating in <br />
-              I-CLC YEP 2025!
+              Wishing you a wonderful evening with I-CLC!
             </p>
             <button
               type="button"
@@ -273,148 +270,10 @@
     <script src="./assets/lib/js/popper.min.js"></script>
     <script src="./assets/lib/js/bootstrap.min.js"></script>
     <script>
-      let customers = []
-      let selectedIndex = -1
-
-      // Load customers on page load
+      // Load departments and setup form on page load
       document.addEventListener('DOMContentLoaded', function () {
-        fetch('/api/customers')
-          .then((response) => response.json())
-          .then((data) => {
-            customers = data
-            setupDropdown()
-          })
-          .catch((error) => {
-            console.error('Error loading customers:', error)
-            const searchInput = document.getElementById('customerSearch')
-            searchInput.placeholder = 'Error loading customers'
-            searchInput.disabled = true
-          })
-      })
+        loadDepartments()
 
-      function setupDropdown() {
-        const searchInput = document.getElementById('customerSearch')
-        const dropdown = document.getElementById('customersDropdown')
-
-        // Show dropdown on focus/click
-        searchInput.addEventListener('focus', function () {
-          showDropdown('')
-        })
-
-        searchInput.addEventListener('click', function () {
-          showDropdown('')
-        })
-
-        // Filter dropdown on input
-        searchInput.addEventListener('input', function () {
-          const searchTerm = this.value.toLowerCase()
-          showDropdown(searchTerm)
-        })
-
-        // Hide dropdown when clicking outside
-        document.addEventListener('click', function (e) {
-          if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-            hideDropdown()
-          }
-        })
-
-        // Handle keyboard navigation
-        searchInput.addEventListener('keydown', function (e) {
-          const items = dropdown.querySelectorAll('.dropdown-item')
-
-          if (e.key === 'ArrowDown') {
-            e.preventDefault()
-            selectedIndex = Math.min(selectedIndex + 1, items.length - 1)
-            updateSelection(items)
-          } else if (e.key === 'ArrowUp') {
-            e.preventDefault()
-            selectedIndex = Math.max(selectedIndex - 1, -1)
-            updateSelection(items)
-          } else if (e.key === 'Enter') {
-            e.preventDefault()
-            if (selectedIndex >= 0 && items[selectedIndex]) {
-              selectCustomer(items[selectedIndex])
-            }
-          } else if (e.key === 'Escape') {
-            hideDropdown()
-          }
-        })
-      }
-
-      function showDropdown(searchTerm) {
-        const dropdown = document.getElementById('customersDropdown')
-        dropdown.innerHTML = ''
-
-        const filteredCustomers = customers.filter(
-          (customer) =>
-            !searchTerm ||
-            customer.name.toLowerCase().includes(searchTerm) ||
-            (customer.department &&
-              customer.department.toLowerCase().includes(searchTerm))
-        )
-
-        if (filteredCustomers.length === 0) {
-          const noResult = document.createElement('div')
-          noResult.className = 'dropdown-item'
-          noResult.textContent = 'No customers found'
-          noResult.style.color = '#6c757d'
-          noResult.style.cursor = 'default'
-          dropdown.appendChild(noResult)
-        } else {
-          filteredCustomers.forEach((customer, index) => {
-            const item = document.createElement('div')
-            item.className = 'dropdown-item'
-            item.textContent = `${customer.name} - ${
-              customer.department || 'No Department'
-            }`
-            item.setAttribute('data-id', customer.id)
-            item.setAttribute('data-index', index)
-
-            item.addEventListener('click', function () {
-              selectCustomer(this)
-            })
-
-            item.addEventListener('mouseenter', function () {
-              selectedIndex = parseInt(this.getAttribute('data-index'))
-              updateSelection(dropdown.querySelectorAll('.dropdown-item'))
-            })
-
-            dropdown.appendChild(item)
-          })
-        }
-
-        dropdown.style.display = 'block'
-        selectedIndex = -1
-      }
-
-      function hideDropdown() {
-        const dropdown = document.getElementById('customersDropdown')
-        dropdown.style.display = 'none'
-        selectedIndex = -1
-      }
-
-      function updateSelection(items) {
-        items.forEach((item, index) => {
-          if (index === selectedIndex) {
-            item.classList.add('active')
-          } else {
-            item.classList.remove('active')
-          }
-        })
-      }
-
-      function selectCustomer(item) {
-        const customerId = item.getAttribute('data-id')
-        const customerName = item.textContent
-
-        document.getElementById('customerSearch').value = customerName
-        document.getElementById('customerId').value = customerId
-
-        hideDropdown()
-      }
-
-      // Check if device has already checked in
-      document.addEventListener('DOMContentLoaded', function () {
         // Check if this device has already checked in today
         const lastCheckinDate = localStorage.getItem('iclc_checkin_date')
         const today = new Date().toDateString()
@@ -423,11 +282,93 @@
           // Device has already checked in today, disable the form
           disableFormForDevice()
         }
+
+        // Setup department change handler
+        document
+          .getElementById('departmentSelect')
+          .addEventListener('change', function () {
+            const selectedDepartment = this.value
+            const customerSelect = document.getElementById('customerSelect')
+
+            if (selectedDepartment) {
+              loadCustomersByDepartment(selectedDepartment)
+              customerSelect.disabled = false
+            } else {
+              customerSelect.innerHTML =
+                '<option value="">Select your name...</option>'
+              customerSelect.disabled = true
+              document.getElementById('customerId').value = ''
+            }
+          })
+
+        // Setup customer change handler
+        document
+          .getElementById('customerSelect')
+          .addEventListener('change', function () {
+            const selectedOption = this.options[this.selectedIndex]
+            const customerId = selectedOption.getAttribute('data-id')
+            document.getElementById('customerId').value = customerId || ''
+          })
       })
+
+      function loadDepartments() {
+        fetch('/api/departments')
+          .then((response) => response.json())
+          .then((departments) => {
+            const departmentSelect = document.getElementById('departmentSelect')
+            departmentSelect.innerHTML =
+              '<option value="">Select Department / Guest</option>'
+
+            departments.forEach((department) => {
+              const option = document.createElement('option')
+              option.value = department
+              option.textContent = department
+              departmentSelect.appendChild(option)
+            })
+          })
+          .catch((error) => {
+            console.error('Error loading departments:', error)
+            const departmentSelect = document.getElementById('departmentSelect')
+            departmentSelect.innerHTML =
+              '<option value="">Error loading departments</option>'
+            departmentSelect.disabled = true
+          })
+      }
+
+      function loadCustomersByDepartment(department) {
+        fetch(
+          `/api/customers-by-department?department=${encodeURIComponent(
+            department
+          )}`
+        )
+          .then((response) => response.json())
+          .then((customers) => {
+            const customerSelect = document.getElementById('customerSelect')
+            customerSelect.innerHTML =
+              '<option value="">Select your name...</option>'
+
+            customers.forEach((customer) => {
+              const option = document.createElement('option')
+              option.value = customer.id
+              option.textContent = customer.name
+              option.setAttribute('data-id', customer.id)
+              customerSelect.appendChild(option)
+            })
+
+            // Reset customer ID
+            document.getElementById('customerId').value = ''
+          })
+          .catch((error) => {
+            console.error('Error loading customers:', error)
+            const customerSelect = document.getElementById('customerSelect')
+            customerSelect.innerHTML =
+              '<option value="">Error loading customers</option>'
+          })
+      }
 
       function disableFormForDevice() {
         const form = document.getElementById('inputForm')
-        const inputs = form.querySelectorAll('input, textarea, button')
+        const inputs = form.querySelectorAll('input, select, textarea, button')
         const warningDiv = document.createElement('div')
 
         warningDiv.className = 'alert alert-warning text-center mb-3'
@@ -445,9 +386,6 @@ You have already checked in!</strong><br>
         inputs.forEach((input) => {
           input.disabled = true
         })
-
-        // Hide the dropdown
-        document.getElementById('customersDropdown').style.display = 'none'
       }
 
       document
@@ -459,7 +397,7 @@ You have already checked in!</strong><br>
           const note = document.getElementById('note').value
 
           if (!customerId) {
-            alert('Please select a valid customer from the list.')
+            alert('Please select your name from the list.')
             return
           }
 
@@ -492,6 +430,7 @@ You have already checked in!</strong><br>
                 $('#successModal').on('hidden.bs.modal', function () {
                   document.getElementById('inputForm').reset()
                   document.getElementById('customerId').value = ''
+                  document.getElementById('customerSelect').disabled = true
                   // Disable form after successful check-in
                   disableFormForDevice()
                 })
