@@ -618,6 +618,10 @@
 
         dropdown.style.display = 'block'
         selectedIndex = -1
+        // Remove active class from all items when opening dropdown
+        dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+          item.classList.remove('active')
+        })
       }
 
       function hideDropdown() {
