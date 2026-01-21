@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -388,6 +388,13 @@
             >
               You have successfully checked in!
             </h2>
+            <p
+              class="mb-2"
+              style="color: #666; font-size: 1.1em"
+              id="customerNameDisplay"
+            >
+              [Customer Name]
+            </p>
             <p class="mb-2" style="color: #666; font-size: 1.1em">
               Your lucky number is:
             </p>
@@ -497,8 +504,8 @@
       function loadCustomersByDepartment(department) {
         fetch(
           `/api/customers-by-department?department=${encodeURIComponent(
-            department
-          )}`
+            department,
+          )}`,
         )
           .then((response) => response.json())
           .then((data) => {
@@ -571,7 +578,7 @@
             !searchTerm ||
             customer.name.toLowerCase().includes(searchTerm) ||
             (customer.department &&
-              customer.department.toLowerCase().includes(searchTerm))
+              customer.department.toLowerCase().includes(searchTerm)),
         )
 
         if (filteredCustomers.length === 0) {
@@ -619,7 +626,7 @@
         dropdown.style.display = 'block'
         selectedIndex = -1
         // Remove active class from all items when opening dropdown
-        dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+        dropdown.querySelectorAll('.dropdown-item').forEach((item) => {
           item.classList.remove('active')
         })
       }
@@ -653,18 +660,51 @@
       function disableFormForDevice() {
         const form = document.getElementById('inputForm')
         const inputs = form.querySelectorAll('input, select, textarea, button')
-        const warningDiv = document.createElement('div')
 
-        warningDiv.className = 'alert alert-warning text-center mb-3'
-        warningDiv.innerHTML = `
-          <i class="fas fa-exclamation-triangle"></i>
-          <strong style="font-size: 0.9em;">
-You have already checked in!</strong><br>
-        `
+        // Check if warning div already exists
+        let warningDiv = document.querySelector('.alert-warning')
+        if (!warningDiv) {
+          warningDiv = document.createElement('div')
+          warningDiv.className = 'alert alert-warning text-center mb-3'
+          warningDiv.innerHTML = `
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong style="font-size: 0.9em;">
+  You have already checked in!</strong><br>
+          `
 
-        // Insert warning at the top of the card body
-        const cardBody = document.querySelector('.card-body')
-        cardBody.insertBefore(warningDiv, cardBody.firstChild)
+          // Insert warning at the top of the card body
+          const cardBody = document.querySelector('.card-body')
+          cardBody.insertBefore(warningDiv, cardBody.firstChild)
+        }
+
+        // Check if view button already exists
+        let viewButton = warningDiv.querySelector('.view-lucky-number-btn')
+        if (!viewButton) {
+          // Add button to view lucky number
+          viewButton = document.createElement('button')
+          viewButton.type = 'button'
+          viewButton.className =
+            'btn btn-primary btn-block view-lucky-number-btn'
+          viewButton.textContent = 'View My Lucky Number'
+          viewButton.style.marginTop = '10px'
+          viewButton.addEventListener('click', function () {
+            const storedLuckyNumber = localStorage.getItem('iclc_lucky_number')
+            const storedCustomerName =
+              localStorage.getItem('iclc_customer_name')
+
+            if (storedLuckyNumber && storedCustomerName) {
+              document.getElementById('luckyNumberDisplay').textContent =
+                '#' + storedLuckyNumber
+              document.getElementById('customerNameDisplay').textContent =
+                `${storedCustomerName}`
+              $('#successModal').modal('show')
+            } else {
+              alert('Lucky number information not found.')
+            }
+          })
+
+          warningDiv.appendChild(viewButton)
+        }
 
         // Disable all form inputs
         inputs.forEach((input) => {
@@ -711,9 +751,18 @@ You have already checked in!</strong><br>
                 const today = new Date().toDateString()
                 localStorage.setItem('iclc_checkin_date', today)
 
+                // Store lucky number and customer name for later viewing
+                localStorage.setItem('iclc_lucky_number', result.luckyNumber)
+                const fullName = document.getElementById('customerSearch').value
+                const customerName = fullName.split(' - ')[0]
+                localStorage.setItem('iclc_customer_name', customerName)
+
                 // Show success modal with lucky number
                 document.getElementById('luckyNumberDisplay').textContent =
                   '#' + result.luckyNumber
+                document.getElementById('customerNameDisplay').textContent =
+                  `${customerName}`
+
                 $('#successModal').modal('show')
 
                 // Reset form when modal is closed
