@@ -237,33 +237,28 @@ function renderResultLatest(typeGift) {
     fetch(`/api/customers-by-ids?ids=${allIds.join(',')}`)
       .then(response => response.json())
       .then(customerMap => {
-        result.forEach((row, rowIndex) => {
-          const resultRow = $("<div class='row'></div>")
-
-          row.forEach((col, colIndex) => {
-            const customer = customerMap[col]
-            let displayText = col
-            if (customer) {
-              displayText = `${col} - ${customer.name}${customer.department ? ' (' + customer.department + ')' : ''}`
-            }
-            const resultCol = $(`<div class='number-result col'>${displayText}</div>`)
-            resultRow.append(resultCol)
-          })
-
-          modalBody.append(resultRow)
+        // Create table HTML
+        let tableHTML = '<table class="result-table"><thead><tr><th>Lucky Number</th><th>Name</th><th>Department</th></tr></thead><tbody>'
+        
+        allIds.forEach((id) => {
+          const customer = customerMap[id]
+          const name = customer ? customer.name : 'N/A'
+          const department = customer ? (customer.department || 'Guest') : 'N/A'
+          tableHTML += `<tr><td>${id}</td><td>${name}</td><td>${department}</td></tr>`
         })
+        
+        tableHTML += '</tbody></table>'
+        modalBody.html(tableHTML)
       })
       .catch(error => {
         console.error('Error fetching customer details:', error)
-        // Fallback to showing just numbers
-        result.forEach((row, rowIndex) => {
-          const resultRow = $("<div class='row'></div>")
-          row.forEach((col, colIndex) => {
-            const resultCol = $(`<div class='number-result col'>${col}</div>`)
-            resultRow.append(resultCol)
-          })
-          modalBody.append(resultRow)
+        // Fallback to simple table with just numbers
+        let tableHTML = '<table class="result-table"><thead><tr><th>Lucky Number</th></tr></thead><tbody>'
+        allIds.forEach((id) => {
+          tableHTML += `<tr><td>${id}</td></tr>`
         })
+        tableHTML += '</tbody></table>'
+        modalBody.html(tableHTML)
       })
   }
 }
