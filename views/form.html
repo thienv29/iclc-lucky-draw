@@ -384,17 +384,14 @@
             </div>
             <h2
               class="mb-3"
-              style="color: #662872; font-weight: 700; font-size: 32px"
+              style="color: #662872; font-weight: 400; font-size: 18px"
             >
               You have successfully checked in!
             </h2>
-            <p
-              class="mb-2"
-              style="color: #666; font-size: 1.1em"
-              id="customerNameDisplay"
-            >
-              [Customer Name]
-            </p>
+            <div id="customerNameDisplay" class="mb-4">
+              <div style="color: #662872; font-weight: 900; font-size: 36px; margin-bottom: 8px; text-shadow: 2px 2px 4px rgba(102, 40, 114, 0.2);" class="customer-name-main">[Name]</div>
+              <div style="color: #8b5cf6; font-weight: 600; font-size: 18px; letter-spacing: 0.5px;" class="customer-name-dept">[Department]</div>
+            </div>
             <p class="mb-2" style="color: #666; font-size: 1.1em">
               Your lucky number is:
             </p>
@@ -407,8 +404,7 @@
                   color: #662872;
                   text-shadow: 2px 2px 4px rgba(102, 40, 114, 0.3);
                 "
-                >#</span
-              >
+              ></span>
             </div>
             <p class="mb-4" style="color: #888">
               Wishing you a wonderful evening with I-CLC!
@@ -597,15 +593,10 @@
             const item = document.createElement('div')
             item.className = 'dropdown-item'
 
-            // For Employee category, show "Name - Department"
-            // For other categories, show only "Name"
-            if (selectedDepartment === 'Employee') {
-              item.textContent = `${customer.name} - ${
-                customer.department || 'No Department'
-              }`
-            } else {
-              item.textContent = customer.name
-            }
+            // Show "Name - Department" format on single line
+            item.textContent = `${customer.name} - ${
+              customer.department || 'Guest'
+            }`
 
             item.setAttribute('data-id', customer.id)
             item.setAttribute('data-index', index)
@@ -691,12 +682,18 @@
             const storedLuckyNumber = localStorage.getItem('iclc_lucky_number')
             const storedCustomerName =
               localStorage.getItem('iclc_customer_name')
+            const storedCustomerDepartment =
+              localStorage.getItem('iclc_customer_department')
 
             if (storedLuckyNumber && storedCustomerName) {
               document.getElementById('luckyNumberDisplay').textContent =
-                '#' + storedLuckyNumber
-              document.getElementById('customerNameDisplay').textContent =
-                `${storedCustomerName}`
+                storedLuckyNumber
+              
+              const nameMainEl = document.querySelector('.customer-name-main')
+              const nameDeptEl = document.querySelector('.customer-name-dept')
+              nameMainEl.textContent = storedCustomerName
+              nameDeptEl.textContent = storedCustomerDepartment || 'Guest'
+              
               $('#successModal').modal('show')
             } else {
               alert('Lucky number information not found.')
@@ -755,13 +752,18 @@
                 localStorage.setItem('iclc_lucky_number', result.luckyNumber)
                 const fullName = document.getElementById('customerSearch').value
                 const customerName = fullName.split(' - ')[0]
+                const customerDepartment = fullName.split(' - ')[1] || ''
                 localStorage.setItem('iclc_customer_name', customerName)
+                localStorage.setItem('iclc_customer_department', customerDepartment)
 
                 // Show success modal with lucky number
                 document.getElementById('luckyNumberDisplay').textContent =
-                  '#' + result.luckyNumber
-                document.getElementById('customerNameDisplay').textContent =
-                  `${customerName}`
+                  result.luckyNumber
+                
+                const nameMainEl = document.querySelector('.customer-name-main')
+                const nameDeptEl = document.querySelector('.customer-name-dept')
+                nameMainEl.textContent = customerName
+                nameDeptEl.textContent = customerDepartment || 'Guest'
 
                 $('#successModal').modal('show')
 

@@ -297,6 +297,33 @@ app.get('/api/checked-in-ids', (req, res) => {
   })
 })
 
+// API endpoint to get customer details by IDs (for displaying in prize results)
+app.get('/api/customers-by-ids', (req, res) => {
+  const ids = req.query.ids ? req.query.ids.split(',').map(Number) : []
+
+  if (ids.length === 0) {
+    return res.json({})
+  }
+
+  const placeholders = ids.map(() => '?').join(',')
+  const query = `SELECT id, name, department FROM checkin_iclc_2026 WHERE id IN (${placeholders})`
+
+  db.query(query, ids, (err, results) => {
+    if (err) {
+      console.error('Error fetching customer details:', err)
+      return res.status(500).json({ success: false, message: 'Database error' })
+    }
+
+    // Convert to object with id as key for easy lookup
+    const customerMap = {}
+    results.forEach((item) => {
+      customerMap[item.id] = item
+    })
+
+    res.json(customerMap)
+  })
+})
+
 // API endpoint to export check-in data to Excel
 app.get('/api/export-checkins', (req, res) => {
   const query =

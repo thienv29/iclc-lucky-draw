@@ -230,16 +230,41 @@ function renderResultLatest(typeGift) {
       break
   }
   if (result && result.length > 0) {
-    result.forEach((row, rowIndex) => {
-      const resultRow = $("<div class='row'></div>")
+    // Flatten all results to get all IDs
+    const allIds = result.flat()
+    
+    // Fetch customer details for all IDs
+    fetch(`/api/customers-by-ids?ids=${allIds.join(',')}`)
+      .then(response => response.json())
+      .then(customerMap => {
+        result.forEach((row, rowIndex) => {
+          const resultRow = $("<div class='row'></div>")
 
-      row.forEach((col, colIndex) => {
-        const resultCol = $(`<div class='number-result col'>${col}</div>`)
-        resultRow.append(resultCol)
+          row.forEach((col, colIndex) => {
+            const customer = customerMap[col]
+            let displayText = col
+            if (customer) {
+              displayText = `${col} - ${customer.name}${customer.department ? ' (' + customer.department + ')' : ''}`
+            }
+            const resultCol = $(`<div class='number-result col'>${displayText}</div>`)
+            resultRow.append(resultCol)
+          })
+
+          modalBody.append(resultRow)
+        })
       })
-
-      modalBody.append(resultRow)
-    })
+      .catch(error => {
+        console.error('Error fetching customer details:', error)
+        // Fallback to showing just numbers
+        result.forEach((row, rowIndex) => {
+          const resultRow = $("<div class='row'></div>")
+          row.forEach((col, colIndex) => {
+            const resultCol = $(`<div class='number-result col'>${col}</div>`)
+            resultRow.append(resultCol)
+          })
+          modalBody.append(resultRow)
+        })
+      })
   }
 }
 
