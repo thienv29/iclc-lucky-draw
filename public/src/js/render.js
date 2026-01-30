@@ -230,16 +230,36 @@ function renderResultLatest(typeGift) {
       break
   }
   if (result && result.length > 0) {
-    result.forEach((row, rowIndex) => {
-      const resultRow = $("<div class='row'></div>")
-
-      row.forEach((col, colIndex) => {
-        const resultCol = $(`<div class='number-result col'>${col}</div>`)
-        resultRow.append(resultCol)
+    // Flatten all results to get all IDs
+    const allIds = result.flat()
+    
+    // Fetch customer details for all IDs
+    fetch(`/api/customers-by-ids?ids=${allIds.join(',')}`)
+      .then(response => response.json())
+      .then(customerMap => {
+        // Create table HTML
+        let tableHTML = '<table class="result-table"><thead><tr><th>Lucky Number</th><th>Name</th><th>Department</th></tr></thead><tbody>'
+        
+        allIds.forEach((id) => {
+          const customer = customerMap[id]
+          const name = customer ? customer.name : 'N/A'
+          const department = customer ? (customer.department || 'Guest') : 'N/A'
+          tableHTML += `<tr><td>${id}</td><td>${name}</td><td>${department}</td></tr>`
+        })
+        
+        tableHTML += '</tbody></table>'
+        modalBody.html(tableHTML)
       })
-
-      modalBody.append(resultRow)
-    })
+      .catch(error => {
+        console.error('Error fetching customer details:', error)
+        // Fallback to simple table with just numbers
+        let tableHTML = '<table class="result-table"><thead><tr><th>Lucky Number</th></tr></thead><tbody>'
+        allIds.forEach((id) => {
+          tableHTML += `<tr><td>${id}</td></tr>`
+        })
+        tableHTML += '</tbody></table>'
+        modalBody.html(tableHTML)
+      })
   }
 }
 
